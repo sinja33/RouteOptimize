@@ -3,3 +3,5 @@ uvicorn[standard]
 httpx
 pydantic
 python-dotenv
+pydantic-settings
+tqdm>=4.65

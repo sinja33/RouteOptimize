@@ -2,11 +2,13 @@ version: "3.9"
 
 services:
   api:
-    build: .
+    build: ./routing-backend/
     container_name: routing-api
     restart: always
     ports:
       - "8000:8000"
+    volumes:
+      - ./data:/data
     environment:
       OSRM_URL: "http://osrm:5000"
       VROOM_URL: "http://vroom:3000"
@@ -15,7 +17,7 @@ services:
       - vroom
 
   vroom:
-    image: vroomvrp/vroom-docker
+    image: ghcr.io/vroom-project/vroom-docker:v1.14.0
     container_name: vroom
     restart: always
     ports:
@@ -26,20 +28,13 @@ services:
 
   osrm:
     image: osrm/osrm-backend
+    platform: linux/amd64
     container_name: osrm
     restart: always
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - ./osrm-data:/data
     command: >
-      bash -c "
-      if [ ! -f /data/slovenia-latest.osrm ]; then
-          echo 'Downloading Slovenia map data...';
-          wget https://download.geofabrik.de/europe/slovenia-latest.osm.pbf -O /data/slovenia-latest.osm.pbf;
-          osrm-extract -p /opt/car.lua /data/slovenia-latest.osm.pbf;
-          osrm-partition /data/slovenia-latest.osrm;
-          osrm-customize /data/slovenia-latest.osrm;
-      fi;
       osrm-routed --algorithm mld /data/slovenia-latest.osrm
-      "
+
