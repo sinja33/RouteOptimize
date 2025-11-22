@@ -1,15 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
-import { MapPin, Upload, X, Package, Trash2 } from 'lucide-react';
+import { MapPin, Upload, X, Package, Trash2, Truck, Zap, AlertCircle } from 'lucide-react';
 
 const App = () => {
   const [orders, setOrders] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploadingOrders, setUploadingOrders] = useState(false);
+  const [uploadingVehicles, setUploadingVehicles] = useState(false);
+  const [optimizing, setOptimizing] = useState(false);
   const [cacheCount, setCacheCount] = useState(0);
+  const [optimizedRoutes, setOptimizedRoutes] = useState([]);
+  const [visibleVehicles, setVisibleVehicles] = useState(new Set());
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
+
+  const COLORS = ['#ff3b4a', '#00d4ff', '#7c3aed', '#f59e0b', '#10b981', 
+                  '#ec4899', '#3b82f6', '#8b5cf6', '#f97316', '#14b8a6',
+                  '#ef4444', '#06b6d4', '#a855f7', '#eab308', '#22c55e',
+                  '#db2777', '#6366f1', '#d946ef', '#fb923c', '#2dd4bf'];
 
   // Update cache count on mount
   useEffect(() => {
@@ -18,13 +28,11 @@ const App = () => {
 
   // Initialize Leaflet map
   useEffect(() => {
-    // Load Leaflet CSS
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
     document.head.appendChild(link);
 
-    // Load Leaflet JS
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
     script.onload = () => {
@@ -41,7 +49,6 @@ const App = () => {
   // Create map when Leaflet is loaded
   useEffect(() => {
     if (mapLoaded && !mapInstanceRef.current && mapRef.current) {
-      // Center on Slovenia
       const map = window.L.map(mapRef.current).setView([46.1512, 14.9955], 8);
       
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -55,7 +62,6 @@ const App = () => {
 
   // Geocode address using Nominatim (OpenStreetMap)
   const geocodeAddress = async (address) => {
-    // Check cache first
     const cacheKey = `geocode_${address.toLowerCase().trim()}`;
     const cached = localStorage.getItem(cacheKey);
     
@@ -65,7 +71,7 @@ const App = () => {
     }
     
     try {
-      const query = `${address}, Slovenia`;
+      const query = address.includes('Slovenia') ? address : `${address}, Slovenia`;
       console.log('Geocoding:', query);
       
       const response = await fetch(
@@ -78,7 +84,6 @@ const App = () => {
       }
       
       const data = await response.json();
-      console.log('Geocoding response:', data);
       
       if (data && data.length > 0) {
         const coords = {
@@ -86,7 +91,6 @@ const App = () => {
           lng: parseFloat(data[0].lon)
         };
         
-        // Save to cache
         localStorage.setItem(cacheKey, JSON.stringify(coords));
         setCacheCount(prev => prev + 1);
         
@@ -99,13 +103,12 @@ const App = () => {
     }
   };
 
-  // Handle Excel file upload
-  const handleFileUpload = async (event) => {
+  // Handle Orders Excel file upload
+  const handleOrdersUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    console.log('File selected:', file.name);
-    setUploading(true);
+    setUploadingOrders(true);
 
     try {
       const data = await file.arrayBuffer();
@@ -114,84 +117,55 @@ const App = () => {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
       console.log('Excel data loaded:', jsonData.length, 'rows');
-      console.log('First row sample:', jsonData[0]);
-      console.log('Column names:', Object.keys(jsonData[0] || {}));
 
-      // Process orders and geocode addresses
       const processedOrders = [];
       let skippedCount = 0;
       
       for (let i = 0; i < jsonData.length; i++) {
         const row = jsonData[i];
         
-        // Try to find address in a single column first
+        const street = row.street || row.Street || '';
+        const houseNumber = row.house_number || row.houseNumber || row.house_num || '';
+        const postalCode = row.postal_code || row.postalCode || row.postal || '';
+        const city = row.city || row.City || '';
+        
         let address = row.Address || row.address || row.Naslov || row.naslov || 
                      row.Adresa || row.adresa;
         
-        // If no single address column, try to combine specific columns
         if (!address) {
-          // Look for street, house_number, postal_code, city columns
-          const street = row.street || row.Street || '';
-          const houseNumber = row.house_number || row.houseNumber || row.house_num || '';
-          const postalCode = row.postal_code || row.postalCode || row.postal || '';
-          const city = row.city || row.City || '';
-          
-          // Combine them if we have at least street and city
           if (street && city) {
             const parts = [street, houseNumber, postalCode, city].filter(p => p);
             address = parts.join(' ').trim();
-            console.log('Combined address from columns:', address);
           }
         }
         
         if (address) {
           console.log(`Processing order ${i + 1}/${jsonData.length}: ${address}`);
           
-          // Check if address is in cache before geocoding
           const cacheKey = `geocode_${address.toLowerCase().trim()}`;
           const wasCached = localStorage.getItem(cacheKey) !== null;
           
           const coords = await geocodeAddress(address);
           
           if (coords) {
-            console.log(`✓ Geocoded: ${address}`, coords);
+            const weight = parseFloat(row['Weight(kg)'] || row.Weight || row.weight || 0);
+            const priority = row.Priority || row.priority || 'standard';
+            const windowStart = row.WindowStart || row.window_start || '';
+            const windowEnd = row.WindowEnd || row.window_end || '';
             
-            const newOrder = {
-              id: row.OrderID || i + 1,
+            processedOrders.push({
+              id: row.OrderID || `ORD${String(i + 1).padStart(4, '0')}`,
               address: address,
-              ...coords,
-              ...row
-            };
+              lat: coords.lat,
+              lng: coords.lng,
+              weight: weight,
+              priority: priority.toLowerCase(),
+              windowStart: windowStart,
+              windowEnd: windowEnd,
+              originalData: row
+            });
             
-            processedOrders.push(newOrder);
-            
-            // Add marker to map immediately
-            if (mapInstanceRef.current) {
-              const marker = window.L.marker([coords.lat, coords.lng], {
-                icon: window.L.divIcon({
-                  className: 'custom-marker',
-                  html: `<div class="marker-pin"></div>`,
-                  iconSize: [24, 24],
-                  iconAnchor: [12, 24]
-                })
-              }).addTo(mapInstanceRef.current);
-
-              marker.bindPopup(`
-                <div style="font-family: 'Inter', sans-serif;">
-                  <strong>Order ${newOrder.id}</strong><br/>
-                  ${newOrder.address}
-                </div>
-              `);
-
-              markersRef.current.push(marker);
-              
-              // Update state to show in sidebar
-              setOrders([...processedOrders]);
-            }
-            
-            // Only delay if we actually made an API call (not cached)
             if (!wasCached && i < jsonData.length - 1) {
-              // Wait to respect rate limit only for non-cached requests
               await new Promise(resolve => setTimeout(resolve, 1100));
             }
           } else {
@@ -199,33 +173,321 @@ const App = () => {
             skippedCount++;
           }
         } else {
-          console.warn(`Row ${i + 1}: No address found`, row);
           skippedCount++;
         }
       }
 
       console.log(`Processed ${processedOrders.length} orders, skipped ${skippedCount}`);
       setOrders(processedOrders);
-      setUploading(false);
+      setUploadingOrders(false);
       
       if (processedOrders.length === 0) {
-        alert('No valid addresses found. Please check your Excel file has an "Address" column.');
+        alert('No valid addresses found.');
       }
 
-      // Fit map to show all markers at the end
-      if (mapInstanceRef.current && processedOrders.length > 0) {
-        const bounds = window.L.latLngBounds(processedOrders.map(o => [o.lat, o.lng]));
-        mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
-      }
+      // Add markers for orders
+      addOrderMarkers(processedOrders);
+
     } catch (error) {
       console.error('Error processing file:', error);
       alert(`Error processing file: ${error.message}`);
-      setUploading(false);
+      setUploadingOrders(false);
     }
   };
 
-  const clearOrders = () => {
+  // Handle Vehicles Excel file upload
+  const handleVehiclesUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setUploadingVehicles(true);
+
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      const processedVehicles = jsonData.map(row => ({
+        id: row.vehicle_id || row.vehicleId || row.id,
+        type: (row.type || '').toLowerCase(),
+        maxCapacity: parseFloat(row.max_capacity || row.maxCapacity || row.capacity || 0),
+        fuelType: (row.fuel_type || row.fuelType || '').toLowerCase(),
+        emissions: parseFloat(row.emission_g_co2_per_km || row.emissions || 0)
+      }));
+
+      console.log('Loaded vehicles:', processedVehicles);
+      setVehicles(processedVehicles);
+      setUploadingVehicles(false);
+
+    } catch (error) {
+      console.error('Error processing vehicles file:', error);
+      alert(`Error processing file: ${error.message}`);
+      setUploadingVehicles(false);
+    }
+  };
+
+  // Add order markers to map
+  const addOrderMarkers = (ordersList) => {
+    if (!mapInstanceRef.current) return;
+
+    // Clear existing order markers
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+
+    ordersList.forEach(order => {
+      const marker = window.L.marker([order.lat, order.lng], {
+        icon: window.L.divIcon({
+          className: 'custom-marker',
+          html: `<div class="marker-pin"></div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 24]
+        })
+      }).addTo(mapInstanceRef.current);
+
+      marker.bindPopup(`
+        <div style="font-family: 'Inter', sans-serif;">
+          <strong>${order.id}</strong><br/>
+          ${order.address}<br/>
+          Weight: ${order.weight}kg<br/>
+          Priority: ${order.priority}
+        </div>
+      `);
+
+      markersRef.current.push(marker);
+    });
+
+    // Fit map to show all markers
+    const allPoints = ordersList.map(o => [o.lat, o.lng]);
+    
+    if (allPoints.length > 0) {
+      const bounds = window.L.latLngBounds(allPoints);
+      mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
+    }
+  };
+
+  // Hardcoded assignment for demo/testing
+  const assignOrdersToVehicles = () => {
+    if (orders.length === 0 || vehicles.length === 0) {
+      alert('Please upload both orders and vehicles first.');
+      return;
+    }
+
+    setOptimizing(true);
+    console.log('Assigning orders to vehicles (hardcoded for demo)...');
+
+    // Simple assignment: divide orders evenly across vehicles
+    const routes = [];
+    const ordersPerVehicle = Math.ceil(orders.length / vehicles.length);
+
+    vehicles.forEach((vehicle, idx) => {
+      const startIdx = idx * ordersPerVehicle;
+      const endIdx = Math.min(startIdx + ordersPerVehicle, orders.length);
+      const vehicleOrders = orders.slice(startIdx, endIdx);
+
+      if (vehicleOrders.length > 0) {
+        const totalWeight = vehicleOrders.reduce((sum, o) => sum + o.weight, 0);
+        
+        routes.push({
+          vehicle: vehicle,
+          orders: vehicleOrders,
+          totalWeight: totalWeight,
+          totalDistance: 0, // Will calculate if needed
+          color: COLORS[idx % COLORS.length]
+        });
+      }
+    });
+
+    console.log(`Assigned ${orders.length} orders to ${routes.length} vehicles`);
+    setOptimizedRoutes(routes);
+    
+    // Initialize all vehicles as visible
+    const allVehicleIds = new Set(vehicles.map(v => v.id));
+    setVisibleVehicles(allVehicleIds);
+    
+    displayRoutesWithFilter(routes, allVehicleIds);
+    setOptimizing(false);
+
+    alert(`Demo Assignment Complete!\n\n${orders.length} orders divided across ${routes.length} vehicles.\n\nUse the vehicle filters to show/hide routes.`);
+  };
+
+  // Toggle vehicle visibility
+  const toggleVehicle = (vehicleId) => {
+    const newVisible = new Set(visibleVehicles);
+    if (newVisible.has(vehicleId)) {
+      newVisible.delete(vehicleId);
+    } else {
+      newVisible.add(vehicleId);
+    }
+    setVisibleVehicles(newVisible);
+    
+    // Pass the NEW visible set directly to displayRoutes
+    displayRoutesWithFilter(optimizedRoutes, newVisible);
+  };
+
+  // Show all vehicles
+  const showAllVehicles = () => {
+    const allVehicleIds = new Set(optimizedRoutes.map(r => r.vehicle.id));
+    setVisibleVehicles(allVehicleIds);
+    displayRoutesWithFilter(optimizedRoutes, allVehicleIds);
+  };
+
+  // Hide all vehicles
+  const hideAllVehicles = () => {
+    const emptySet = new Set();
+    setVisibleVehicles(emptySet);
+    displayRoutesWithFilter(optimizedRoutes, emptySet);
+  };
+
+  // Export orders with coordinates to Excel
+  const exportOrdersWithCoordinates = () => {
+    if (orders.length === 0) {
+      alert('No orders to export.');
+      return;
+    }
+
+    // Prepare data for export
+    const exportData = orders.map(order => ({
+      OrderID: order.id,
+      Address: order.address,
+      Latitude: order.lat,
+      Longitude: order.lng,
+      Weight_kg: order.weight,
+      Priority: order.priority,
+      WindowStart: order.windowStart || '',
+      WindowEnd: order.windowEnd || '',
+      // Include any other original data
+      ...order.originalData
+    }));
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders with Coordinates');
+    
+    // Generate filename with timestamp
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const filename = `orders_geocoded_${timestamp}.xlsx`;
+    
+    // Download
+    XLSX.writeFile(workbook, filename);
+    
+    console.log(`Exported ${orders.length} orders with coordinates`);
+    alert(`Exported ${orders.length} orders with lat/lng coordinates to:\n${filename}`);
+  };
+
+  // Export vehicle assignments to Excel
+  const exportVehicleAssignments = () => {
+    if (optimizedRoutes.length === 0) {
+      alert('No assignments to export. Please assign orders to vehicles first.');
+      return;
+    }
+
+    // Prepare data for export - one row per order with vehicle assignment
+    const exportData = [];
+    
+    optimizedRoutes.forEach(route => {
+      route.orders.forEach((order, idx) => {
+        exportData.push({
+          VehicleID: route.vehicle.id,
+          VehicleType: route.vehicle.type,
+          FuelType: route.vehicle.fuelType,
+          StopNumber: idx + 1,
+          OrderID: order.id,
+          Address: order.address,
+          Latitude: order.lat,
+          Longitude: order.lng,
+          Weight_kg: order.weight,
+          Priority: order.priority,
+          WindowStart: order.windowStart || '',
+          WindowEnd: order.windowEnd || ''
+        });
+      });
+    });
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Vehicle Assignments');
+    
+    // Add summary sheet
+    const summaryData = optimizedRoutes.map(route => ({
+      VehicleID: route.vehicle.id,
+      Type: route.vehicle.type,
+      FuelType: route.vehicle.fuelType,
+      Capacity_kg: route.vehicle.maxCapacity,
+      TotalStops: route.orders.length,
+      TotalWeight_kg: route.totalWeight,
+      LoadPercentage: ((route.totalWeight / route.vehicle.maxCapacity) * 100).toFixed(1) + '%'
+    }));
+    
+    const summarySheet = XLSX.utils.json_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+    
+    // Generate filename with timestamp
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const filename = `vehicle_assignments_${timestamp}.xlsx`;
+    
+    // Download
+    XLSX.writeFile(workbook, filename);
+    
+    console.log(`Exported ${exportData.length} order assignments`);
+    alert(`Exported vehicle assignments:\n- ${exportData.length} orders\n- ${optimizedRoutes.length} vehicles\n\nFile: ${filename}`);
+  };
+
+  // Display routes on map
+  const displayRoutesWithFilter = (routes, filterSet = null) => {
+    if (!mapInstanceRef.current) return;
+
+    // Use provided filter or fall back to state
+    const vehiclesToShow = filterSet || visibleVehicles;
+
+    // Clear existing order markers
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+
+    // Draw routes (only for visible vehicles)
+    routes.forEach((route) => {
+      // Skip if vehicle is not visible
+      if (!vehiclesToShow.has(route.vehicle.id)) return;
+      
+      if (route.orders.length === 0) return;
+
+      // Add markers for orders in this route
+      route.orders.forEach((order, idx) => {
+        const marker = window.L.marker([order.lat, order.lng], {
+          icon: window.L.divIcon({
+            className: 'route-marker',
+            html: `<div class="route-pin" style="background: ${route.color};">${idx + 1}</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+          })
+        }).addTo(mapInstanceRef.current);
+
+        marker.bindPopup(`
+          <div style="font-family: 'Inter', sans-serif;">
+            <strong>Stop ${idx + 1} - ${order.id}</strong><br/>
+            Vehicle: ${route.vehicle.id}<br/>
+            ${order.address}<br/>
+            Weight: ${order.weight}kg<br/>
+            Priority: ${order.priority}
+          </div>
+        `);
+
+        markersRef.current.push(marker);
+      });
+    });
+  };
+
+  const clearAll = () => {
     setOrders([]);
+    setVehicles([]);
+    setOptimizedRoutes([]);
+    setVisibleVehicles(new Set());
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
     if (mapInstanceRef.current) {
@@ -234,7 +496,6 @@ const App = () => {
   };
 
   const clearGeocodeCache = () => {
-    // Count how many cached items we have
     let count = 0;
     const keys = Object.keys(localStorage);
     keys.forEach(key => {
@@ -278,19 +539,33 @@ const App = () => {
           animation: markerPop 0.3s ease-out;
         }
 
+        .route-pin {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          border: 3px solid white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          color: white;
+          font-size: 12px;
+          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+        }
+
         @keyframes markerPop {
           0% {
-            transform: rotate(-45deg) scale(0);
+            transform: scale(0);
           }
           50% {
-            transform: rotate(-45deg) scale(1.2);
+            transform: scale(1.2);
           }
           100% {
-            transform: rotate(-45deg) scale(1);
+            transform: scale(1);
           }
         }
 
-        .custom-marker {
+        .custom-marker, .route-marker {
           background: transparent !important;
           border: none !important;
         }
@@ -367,61 +642,459 @@ const App = () => {
             fontWeight: '400',
             letterSpacing: '0.3px'
           }}>
-            Delivery Route Planning for Slovenia
+            Multi-Vehicle Route Optimization
           </p>
         </div>
 
-        {/* Upload Section */}
+        {/* Content */}
         <div style={{ padding: '24px 28px', flex: 1, overflowY: 'auto' }}>
-          <label htmlFor="file-upload" style={{
-            display: 'block',
-            width: '100%',
-            padding: '20px',
-            background: uploading ? 'rgba(255, 59, 74, 0.1)' : 'rgba(255, 59, 74, 0.05)',
-            border: `2px dashed ${uploading ? '#ff3b4a' : 'rgba(255, 59, 74, 0.3)'}`,
-            borderRadius: '12px',
-            textAlign: 'center',
-            cursor: uploading ? 'not-allowed' : 'pointer',
-            transition: 'all 0.3s ease',
-            marginBottom: '24px'
-          }}
-          onMouseEnter={(e) => {
-            if (!uploading) {
-              e.currentTarget.style.background = 'rgba(255, 59, 74, 0.1)';
-              e.currentTarget.style.borderColor = '#ff3b4a';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!uploading) {
-              e.currentTarget.style.background = 'rgba(255, 59, 74, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(255, 59, 74, 0.3)';
-            }
-          }}>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={handleFileUpload}
-              disabled={uploading}
-              style={{ display: 'none' }}
-            />
-            <Upload size={32} color={uploading ? '#ff3b4a' : '#8b95a5'} 
-              style={{ marginBottom: '12px' }} />
-            <div style={{
-              fontSize: '15px',
-              fontWeight: '600',
-              color: uploading ? '#ff3b4a' : '#e0e6ed',
-              marginBottom: '4px'
-            }}>
-              {uploading ? 'Processing orders...' : 'Upload Excel File'}
-            </div>
-            <div style={{
+          
+          {/* Orders Upload */}
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{
+              margin: '0 0 12px 0',
               fontSize: '12px',
-              color: '#6b7684'
+              fontWeight: '700',
+              color: '#e0e6ed',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              fontFamily: "'Space Mono', monospace"
             }}>
-              {uploading ? 'Geocoding addresses, please wait' : 'Click to select .xlsx or .xls file'}
+              1. Upload Orders
+            </h3>
+            <label htmlFor="orders-upload" style={{
+              display: 'block',
+              width: '100%',
+              padding: '16px',
+              background: uploadingOrders ? 'rgba(255, 59, 74, 0.1)' : 'rgba(255, 59, 74, 0.05)',
+              border: `2px dashed ${uploadingOrders ? '#ff3b4a' : 'rgba(255, 59, 74, 0.3)'}`,
+              borderRadius: '10px',
+              textAlign: 'center',
+              cursor: uploadingOrders ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              if (!uploadingOrders) {
+                e.currentTarget.style.background = 'rgba(255, 59, 74, 0.1)';
+                e.currentTarget.style.borderColor = '#ff3b4a';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!uploadingOrders) {
+                e.currentTarget.style.background = 'rgba(255, 59, 74, 0.05)';
+                e.currentTarget.style.borderColor = 'rgba(255, 59, 74, 0.3)';
+              }
+            }}>
+              <input
+                id="orders-upload"
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleOrdersUpload}
+                disabled={uploadingOrders}
+                style={{ display: 'none' }}
+              />
+              <Upload size={24} color={uploadingOrders ? '#ff3b4a' : '#8b95a5'} 
+                style={{ marginBottom: '8px' }} />
+              <div style={{
+                fontSize: '13px',
+                fontWeight: '600',
+                color: uploadingOrders ? '#ff3b4a' : '#e0e6ed',
+                marginBottom: '2px'
+              }}>
+                {uploadingOrders ? 'Processing...' : orders.length > 0 ? `${orders.length} orders loaded` : 'Upload Orders Excel'}
+              </div>
+              <div style={{
+                fontSize: '11px',
+                color: '#6b7684'
+              }}>
+                {uploadingOrders ? 'Geocoding addresses' : '.xlsx or .xls file'}
+              </div>
+            </label>
+          </div>
+
+          {/* Export Orders Button */}
+          {orders.length > 0 && (
+            <button
+              onClick={exportOrdersWithCoordinates}
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '2px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '10px',
+                color: '#10b981',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
+                e.currentTarget.style.borderColor = '#10b981';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+              }}
+            >
+              <Package size={16} />
+              Export Orders with Coordinates
+            </button>
+          )}
+
+          {/* Vehicles Upload */}
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{
+              margin: '0 0 12px 0',
+              fontSize: '12px',
+              fontWeight: '700',
+              color: '#e0e6ed',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              fontFamily: "'Space Mono', monospace"
+            }}>
+              2. Upload Vehicles
+            </h3>
+            <label htmlFor="vehicles-upload" style={{
+              display: 'block',
+              width: '100%',
+              padding: '16px',
+              background: uploadingVehicles ? 'rgba(0, 212, 255, 0.1)' : 'rgba(0, 212, 255, 0.05)',
+              border: `2px dashed ${uploadingVehicles ? '#00d4ff' : 'rgba(0, 212, 255, 0.3)'}`,
+              borderRadius: '10px',
+              textAlign: 'center',
+              cursor: uploadingVehicles ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              if (!uploadingVehicles) {
+                e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
+                e.currentTarget.style.borderColor = '#00d4ff';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!uploadingVehicles) {
+                e.currentTarget.style.background = 'rgba(0, 212, 255, 0.05)';
+                e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+              }
+            }}>
+              <input
+                id="vehicles-upload"
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleVehiclesUpload}
+                disabled={uploadingVehicles}
+                style={{ display: 'none' }}
+              />
+              <Truck size={24} color={uploadingVehicles ? '#00d4ff' : '#8b95a5'} 
+                style={{ marginBottom: '8px' }} />
+              <div style={{
+                fontSize: '13px',
+                fontWeight: '600',
+                color: uploadingVehicles ? '#00d4ff' : '#e0e6ed',
+                marginBottom: '2px'
+              }}>
+                {uploadingVehicles ? 'Loading...' : vehicles.length > 0 ? `${vehicles.length} vehicles loaded` : 'Upload Vehicles Excel'}
+              </div>
+              <div style={{
+                fontSize: '11px',
+                color: '#6b7684'
+              }}>
+                .xlsx or .xls file
+              </div>
+            </label>
+          </div>
+
+          {/* Assign Button */}
+          <button
+            onClick={assignOrdersToVehicles}
+            disabled={orders.length === 0 || vehicles.length === 0 || optimizing}
+            style={{
+              width: '100%',
+              padding: '18px',
+              background: (orders.length === 0 || vehicles.length === 0 || optimizing) 
+                ? 'rgba(255, 255, 255, 0.05)' 
+                : 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
+              border: 'none',
+              borderRadius: '12px',
+              color: (orders.length === 0 || vehicles.length === 0 || optimizing) ? '#6b7684' : '#ffffff',
+              fontSize: '14px',
+              fontWeight: '700',
+              cursor: (orders.length === 0 || vehicles.length === 0 || optimizing) ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              marginBottom: '20px',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              fontFamily: "'Space Mono', monospace",
+              boxShadow: (orders.length > 0 && vehicles.length > 0 && !optimizing) 
+                ? '0 8px 20px rgba(124, 58, 237, 0.4)' 
+                : 'none'
+            }}
+            onMouseEnter={(e) => {
+              if (orders.length > 0 && vehicles.length > 0 && !optimizing) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 12px 24px rgba(124, 58, 237, 0.5)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              if (orders.length > 0 && vehicles.length > 0 && !optimizing) {
+                e.currentTarget.style.boxShadow = '0 8px 20px rgba(124, 58, 237, 0.4)';
+              }
+            }}
+          >
+            {optimizing ? '⚡ Assigning...' : '📦 Assign to Vehicles (Demo)'}
+          </button>
+
+          {/* Routes Summary */}
+          {optimizedRoutes.length > 0 && (
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '16px'
+              }}>
+                <h3 style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  color: '#e0e6ed',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  fontFamily: "'Space Mono', monospace"
+                }}>
+                  Routes ({optimizedRoutes.length})
+                </h3>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                {optimizedRoutes.map((route, idx) => (
+                  <div key={idx} style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    border: `1px solid ${route.color}40`,
+                    borderLeft: `4px solid ${route.color}`
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '8px'
+                    }}>
+                      <div style={{
+                        fontSize: '13px',
+                        fontWeight: '700',
+                        color: '#e0e6ed',
+                        fontFamily: "'Space Mono', monospace"
+                      }}>
+                        {route.vehicle.id}
+                      </div>
+                      <div style={{
+                        display: 'flex',
+                        gap: '6px',
+                        alignItems: 'center'
+                      }}>
+                        {route.vehicle.fuelType === 'electric' && (
+                          <Zap size={14} color="#10b981" />
+                        )}
+                        <span style={{
+                          fontSize: '11px',
+                          color: '#8b95a5',
+                          textTransform: 'uppercase'
+                        }}>
+                          {route.vehicle.type}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '8px',
+                      fontSize: '11px',
+                      color: '#8b95a5'
+                    }}>
+                      <div>Stops: {route.orders.length}</div>
+                      <div>Dist: {route.totalDistance}km</div>
+                      <div>Load: {route.totalWeight}kg</div>
+                      <div>Cap: {route.vehicle.maxCapacity}kg</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </label>
+          )}
+
+          {/* Vehicle Filters */}
+          {optimizedRoutes.length > 0 && (
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '12px'
+              }}>
+                <h3 style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  color: '#e0e6ed',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  fontFamily: "'Space Mono', monospace"
+                }}>
+                  Vehicle Filters
+                </h3>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={showAllVehicles}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: '#8b95a5',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      fontSize: '10px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(124, 58, 237, 0.1)';
+                      e.currentTarget.style.color = '#a855f7';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = '#8b95a5';
+                    }}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={hideAllVehicles}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: '#8b95a5',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      fontSize: '10px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 59, 74, 0.1)';
+                      e.currentTarget.style.color = '#ff3b4a';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = '#8b95a5';
+                    }}
+                  >
+                    None
+                  </button>
+                </div>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px'
+              }}>
+                {optimizedRoutes.map((route) => (
+                  <label key={route.vehicle.id} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 12px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    borderLeft: `3px solid ${route.color}`
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={visibleVehicles.has(route.vehicle.id)}
+                      onChange={() => toggleVehicle(route.vehicle.id)}
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                        accentColor: route.color
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#e0e6ed',
+                        fontFamily: "'Space Mono', monospace"
+                      }}>
+                        {route.vehicle.id}
+                      </div>
+                      <div style={{
+                        fontSize: '10px',
+                        color: '#8b95a5'
+                      }}>
+                        {route.orders.length} stops • {route.totalWeight.toFixed(1)}kg
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Export Vehicle Assignments Button */}
+          {optimizedRoutes.length > 0 && (
+            <button
+              onClick={exportVehicleAssignments}
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: 'rgba(124, 58, 237, 0.1)',
+                border: '2px solid rgba(124, 58, 237, 0.3)',
+                borderRadius: '10px',
+                color: '#a855f7',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(124, 58, 237, 0.15)';
+                e.currentTarget.style.borderColor = '#a855f7';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(124, 58, 237, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(124, 58, 237, 0.3)';
+              }}
+            >
+              <Truck size={16} />
+              Export Vehicle Assignments
+            </button>
+          )}
 
           {/* Cache Info */}
           {cacheCount > 0 && (
@@ -430,18 +1103,15 @@ const App = () => {
               background: 'rgba(255, 255, 255, 0.03)',
               borderRadius: '10px',
               border: '1px solid rgba(255, 255, 255, 0.06)',
-              marginBottom: '24px',
+              marginBottom: '12px',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
               <div style={{
-                fontSize: '12px',
+                fontSize: '11px',
                 color: '#8b95a5'
               }}>
-                <div style={{ marginBottom: '2px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'Space Mono', monospace" }}>
-                  Cache
-                </div>
                 {cacheCount} addresses cached
               </div>
               <button
@@ -451,155 +1121,59 @@ const App = () => {
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   color: '#8b95a5',
                   cursor: 'pointer',
-                  padding: '6px 12px',
+                  padding: '4px 10px',
                   borderRadius: '6px',
-                  fontSize: '11px',
-                  transition: 'all 0.2s ease',
-                  fontFamily: "'Space Mono', monospace"
+                  fontSize: '10px',
+                  transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = 'rgba(255, 59, 74, 0.1)';
-                  e.currentTarget.style.borderColor = '#ff3b4a';
                   e.currentTarget.style.color = '#ff3b4a';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
                   e.currentTarget.style.color = '#8b95a5';
                 }}
               >
-                Clear Cache
+                Clear
               </button>
             </div>
           )}
 
-          {/* Orders List */}
-          {orders.length > 0 && (
-            <>
-              <div style={{
+          {/* Clear All */}
+          {(orders.length > 0 || vehicles.length > 0) && (
+            <button
+              onClick={clearAll}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'transparent',
+                border: '1px solid rgba(255, 59, 74, 0.3)',
+                borderRadius: '8px',
+                color: '#8b95a5',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
                 display: 'flex',
-                justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: '16px'
-              }}>
-                <h3 style={{
-                  margin: 0,
-                  fontSize: '14px',
-                  fontWeight: '700',
-                  color: '#e0e6ed',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1.2px',
-                  fontFamily: "'Space Mono', monospace"
-                }}>
-                  Orders ({orders.length})
-                </h3>
-                <button
-                  onClick={clearOrders}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#8b95a5',
-                    cursor: 'pointer',
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '12px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 59, 74, 0.1)';
-                    e.currentTarget.style.color = '#ff3b4a';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = '#8b95a5';
-                  }}
-                >
-                  <Trash2 size={14} />
-                  Clear All
-                </button>
-              </div>
-
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
+                justifyContent: 'center',
                 gap: '8px'
-              }}>
-                {orders.map((order, index) => (
-                  <div key={order.id} style={{
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    padding: '14px 16px',
-                    borderRadius: '10px',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                    animation: `fadeIn 0.3s ease-out ${index * 0.05}s both`,
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
-                    e.currentTarget.style.borderColor = 'rgba(255, 59, 74, 0.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-                  }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '12px'
-                    }}>
-                      <div style={{
-                        width: '6px',
-                        height: '6px',
-                        background: '#ff3b4a',
-                        borderRadius: '50%',
-                        marginTop: '6px',
-                        flexShrink: 0,
-                        boxShadow: '0 0 8px rgba(255, 59, 74, 0.6)'
-                      }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{
-                          fontSize: '11px',
-                          color: '#6b7684',
-                          fontWeight: '600',
-                          marginBottom: '4px',
-                          fontFamily: "'Space Mono', monospace",
-                          letterSpacing: '0.5px'
-                        }}>
-                          ORDER #{order.id}
-                        </div>
-                        <div style={{
-                          fontSize: '13px',
-                          color: '#e0e6ed',
-                          lineHeight: '1.5',
-                          fontWeight: '400'
-                        }}>
-                          {order.address}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {orders.length === 0 && !uploading && (
-            <div style={{
-              textAlign: 'center',
-              padding: '40px 20px',
-              color: '#6b7684',
-              fontSize: '13px'
-            }}>
-              <MapPin size={48} color="#2c3442" style={{ marginBottom: '16px' }} />
-              <div style={{ marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#8b95a5' }}>
-                No orders loaded
-              </div>
-              <div>
-                Upload an Excel file with order addresses to get started
-              </div>
-            </div>
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 59, 74, 0.1)';
+                e.currentTarget.style.color = '#ff3b4a';
+                e.currentTarget.style.borderColor = '#ff3b4a';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#8b95a5';
+                e.currentTarget.style.borderColor = 'rgba(255, 59, 74, 0.3)';
+              }}
+            >
+              <Trash2 size={14} />
+              Clear All Data
+            </button>
           )}
         </div>
       </div>
