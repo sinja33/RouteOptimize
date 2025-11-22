@@ -15,6 +15,23 @@ async def parse_orders(csv_path: str):
             reader = list(csv.DictReader(f, delimiter=";"))
             total = len(reader)
             for idx, row in enumerate(reader, start=1):
+                lat_str = row.get("lat", "").strip()
+                lng_str = row.get("lng", "").strip()
+                
+                if not lat_str or not lng_str:
+                    # fallback: need to geocode again
+                    full_address = f"{row['street']} {row['house_number']}, {row.get('postal_code','')} {row['city']}"
+                    print(f"[WARN] Missing lat/lng for {row['OrderID']}, geocoding...")
+                    coords = await geocode(full_address)
+                    if coords:
+                        lat, lng = coords
+                        print(f"[INFO] Got coordinates: {lat}, {lng}")
+                    else:
+                        print(f"[ERROR] Failed to geocode {row['OrderID']}, skipping...")
+                        continue
+                else:
+                    lat, lng = float(lat_str), float(lng_str)
+
                 order = Order(
                     order_id=row["OrderID"],
                     weight=float(row["Weight(kg)"].replace(",", ".")),
@@ -25,13 +42,14 @@ async def parse_orders(csv_path: str):
                     house_number=row["house_number"],
                     postal_code=row.get("postal_code", None),
                     city=row["city"],
-                    lat=float(row["lat"]),
-                    lng=float(row["lng"])
+                    lat=lat,
+                    lng=lng
                 )
                 orders.append(order)
                 if idx % 5 == 0 or idx == total:
                     print(f"[INFO] Loaded {idx}/{total} cached orders...")
         return orders
+
 
     # Otherwise, read original CSV and geocode
     print(f"[INFO] Reading orders from {csv_path} and geocoding addresses...")

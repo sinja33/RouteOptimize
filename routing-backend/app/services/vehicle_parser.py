@@ -3,7 +3,7 @@ import csv
 def parse_vehicles(csv_path: str):
     vehicles = []
     with open(csv_path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
+        reader = csv.DictReader(f, delimiter=";")
         for i, row in enumerate(reader):
             vehicles.append({
                 "id": i + 1,

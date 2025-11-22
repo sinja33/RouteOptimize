@@ -335,11 +335,11 @@ ORD0333;17.63;express;9:18;11:18;Ilirska ulica;21;1000;Ljubljana;46.0530823;14.5
 ORD0334;12.82;urgent;13:21;15:21;Polje, cesta XXII;14a;1260;Ljubljana - Polje;;
 ORD0335;3.38;express;18:50;20:50;Trinkova ulica;86c;1000;Ljubljana;46.0379695;14.4467522
 ORD0336;16.23;standard;11:02;13:02;Klančarjeva ulica;4;;;46.0248459;14.5398467
-ORD0337;2.52;standard;10:57;12:57;Novo Polje, cesta XIV;6;1260;Ljubljana - Polje;;
+ORD0337;2.52;standard;10:57;12:57;Novo Polje, cesta XIV;6;1260;Ljubljana - Polje;46.06332120542664;14.583846810205005
 ORD0338;6.64;urgent;15:12;17:12;Celjska ulica;8;;;45.8067498;15.9236655
 ORD0339;19.05;standard;13:47;15:47;Kregarjeva ulica;17;1000;Ljubljana;46.0941701;14.5071149
 ORD0340;7.05;urgent;16:30;18:30;Grajzerjeva ulica;11a;1260;Ljubljana - Polje;46.0515845;14.5953243
-ORD0341;10.9;express;18:36;20:36;Polje, cesta XXVI;3b;1260;Ljubljana - Polje;;
+ORD0341;10.9;express;18:36;20:36;Polje, cesta XXVI;3b;1260;Ljubljana - Polje;46.058158523115374;14.57958489459393
 ORD0342;2.86;standard;13:06;15:06;Derčeva ulica;31;1000;Ljubljana;46.0710175;14.4834465
 ORD0343;1.78;urgent;19:01;21:01;Litijska cesta;45;1000;Ljubljana;46.0480953;14.5438966
 ORD0344;11.17;express;13:58;15:58;Pečinska ulica;34;1260;Ljubljana - Polje;46.0517851;14.5990278
@@ -356,7 +356,7 @@ ORD0354;3.1;express;14:25;16:25;Cesta španskih borcev;45a;1260;Ljubljana - Polj
 ORD0355;14.99;urgent;15:27;17:27;Saveljska cesta;67;1000;Ljubljana;46.0920113;14.501852
 ORD0356;0.54;urgent;14:28;16:28;Jelovškova ulica;11;1000;;46.0387013;14.5041291
 ORD0357;12.39;urgent;15:04;17:04;Omersova ulica;58;;;46.0714306;14.453683
-ORD0358;2.61;express;10:09;12:09;Polje, cesta VIII;5a;1260;Ljubljana - Polje;;
+ORD0358;2.61;express;10:09;12:09;Polje, cesta VIII;5a;1260;Ljubljana - Polje;46.05734332091714;14.575194560297565
 ORD0359;10.75;standard;10:24;12:24;Toplarniška ulica;19;1000;Ljubljana;46.0579154;14.5451755
 ORD0360;19.23;standard;11:19;13:19;Ulica bratov Babnik;20;1117;Ljubljana;46.0758698;14.4646851
 ORD0361;4.97;standard;12:53;14:53;Podgorica;90;1231;Ljubljana - Črnuče;46.0972105;14.586495
@@ -430,7 +430,7 @@ ORD0428;5.04;urgent;9:53;11:53;Krovska ulica;7;;;46.0828538;14.4769967
 ORD0429;13.68;standard;13:49;15:49;Pri borštu;22;1210;Ljubljana - Šentvid;46.0920727;14.4800137
 ORD0430;10.89;urgent;13:31;15:31;Zgornje Gameljne;27a;;;46.1288329;14.4912538
 ORD0431;12.35;urgent;8:52;10:52;Jurčkova cesta;152;1000;Ljubljana;46.0253844;14.5285947
-ORD0432;10.71;urgent;12:29;14:29;Polje, cesta XXXVIII;10e;1260;Ljubljana - Polje;;
+ORD0432;10.71;urgent;12:29;14:29;Polje, cesta XXXVIII;10e;1260;Ljubljana - Polje;46.05815755209484;14.581470450260426
 ORD0433;1.48;urgent;16:39;18:39;Peruzzijeva ulica;15;;;46.0280243;14.5307325
 ORD0434;18.12;express;16:09;18:09;Litijska cesta;146;1000;Ljubljana;46.0444694;14.5595269
 ORD0435;5.52;express;13:26;15:26;Planinska cesta;10;1231;Ljubljana - Črnuče;46.1093791;14.5326757
@@ -446,7 +446,7 @@ ORD0444;19.95;express;10:01;12:01;Levarjeva ulica;25;;;46.0294132;14.4938142
 ORD0445;2.74;express;17:20;19:20;Pot v Zeleni gaj;16a;1000;Ljubljana;46.0646419;14.6164144
 ORD0446;6.37;standard;10:29;12:29;Litijska cesta;184;1261;Ljubljana - Dobrunje;46.0418528;14.5835681
 ORD0447;16.77;standard;11:04;13:04;Okiškega ulica;15;1000;Ljubljana;46.0546952;14.5375537
-ORD0448;5.24;express;18:15;20:15;Ulica Martina Krpana;33,31;;;;
+ORD0448;5.24;express;18:15;20:15;Ulica Martina Krpana;33,31;;;46.07159240700163;14.482829535383766
 ORD0449;12.34;standard;15:38;17:38;Vrhovci, cesta XXI;3;;;46.0431498;14.4523067
 ORD0450;16.94;standard;10:08;12:08;Na Brežini;2;1231;Ljubljana - Črnuče;46.1052938;14.5423657
 ORD0451;12.7;standard;9:29;11:29;Pod hrasti;7;;;46.0371043;14.4967032
@@ -456,7 +456,7 @@ ORD0454;7.29;urgent;10:23;12:23;Kamniška ulica;27;;;46.0690292;14.5013508
 ORD0455;11.9;standard;14:50;16:50;Rocenska ulica;6;1211;Ljubljana - Šmartno;46.1186855;14.4597509
 ORD0456;15.7;urgent;13:55;15:55;Ulica bratov Učakar;122;1000;Ljubljana;46.0725164;14.4706082
 ORD0457;12.74;standard;18:16;20:16;Rožna dolina Cesta XVII;6A;;;46.0466587;14.4795718
-ORD0458;4.63;urgent;14:43;16:43;Novo Polje, cesta I;61a;1260;Ljubljana - Polje;;
+ORD0458;4.63;urgent;14:43;16:43;Novo Polje, cesta I;61a;1260;Ljubljana - Polje;46.06118052634058;14.580074104889317
 ORD0459;3.63;standard;8:38;10:38;Pot v Hribec;7;1231;Ljubljana - Črnuče;46.1097422;14.5301467
 ORD0460;7.31;urgent;15:12;17:12;Milčinskega ulica;66;;;46.0755119;14.4993586
 ORD0461;5.7;express;16:36;18:36;Rjava cesta;7;1260;Ljubljana - Polje;46.057366;14.5787955
@@ -464,7 +464,7 @@ ORD0462;0.82;urgent;16:15;18:15;Ulica nadgoriških borcev;9;1231;Ljubljana - Čr
 ORD0463;9.2;express;14:33;16:33;Celovška cesta;490;1210;Ljubljana - Šentvid;46.1040125;14.4571345
 ORD0464;1.99;standard;16:56;18:56;Stantetova ulica;16;;;46.0465052;14.4522411
 ORD0465;15.46;standard;13:52;15:52;Kolodvorska ulica;12;1000;Ljubljana;46.0562599;14.5098523
-ORD0466;5.43;standard;13:23;15:23;Polje, cesta VI;8;1260;Ljubljana - Polje;;
+ORD0466;5.43;standard;13:23;15:23;Polje, cesta VI;8;1260;Ljubljana - Polje;46.057719293328866;14.576144403009376
 ORD0467;4.0;standard;12:10;14:10;Krivec;81;1126;Ljubljana;46.0765817;14.4535376
 ORD0468;4.38;standard;15:57;17:57;Vodnikova cesta;162;1000;Ljubljana;46.0739222;14.4767133
 ORD0469;10.27;standard;15:56;17:56;Ribniška ulica;17;;;46.0582105;14.5311818
@@ -476,7 +476,7 @@ ORD0474;12.44;standard;13:21;15:21;Škrabčeva ulica;25D;;;46.0484198;14.4877031
 ORD0475;0.55;standard;12:49;14:49;Bavdkova ulica;2;;;46.0630285;14.5321438
 ORD0476;10.88;express;18:47;20:47;Ulica prvoborcev;19A;;;46.0879282;14.5110662
 ORD0477;11.62;express;15:28;17:28;Zasavska cesta;83;1231;Ljubljana - Črnuče;46.0979036;14.5578086
-ORD0478;11.47;express;16:34;18:34;Polje, cesta XVIII;2a;1260;Ljubljana - Polje;;
+ORD0478;11.47;express;16:34;18:34;Polje, cesta XVIII;2a;1260;Ljubljana - Polje;46.0560044861108;14.578710132581476
 ORD0479;2.43;express;13:26;15:26;Litostrojska cesta;54;1000;Ljubljana;46.0812904;14.4969146
 ORD0480;8.26;express;11:56;13:56;Kapiteljska ulica;4;1000;Ljubljana;46.0508874;14.5113813
 ORD0481;10.33;urgent;10:24;12:24;Čemažarjeva ulica;12;1000;Ljubljana;46.0942544;14.5075466
@@ -485,7 +485,7 @@ ORD0483;4.18;express;11:52;13:52;Pot v Zeleni gaj;15;1000;Ljubljana;46.0652268;1
 ORD0484;18.06;standard;11:10;13:10;Posavskega ulica;19;1000;Ljubljana;46.0717167;14.5074176
 ORD0485;10.44;urgent;18:04;20:04;Gašperšičeva ulica;8;1000;Ljubljana;46.0526011;14.5550769
 ORD0486;8.32;standard;16:44;18:44;Ob Farjevcu;21;1000;Ljubljana;46.0094052;14.5024043
-ORD0487;0.65;urgent;9:19;11:19;Novo Polje, cesta VII;1;1260;Ljubljana - Polje;;
+ORD0487;0.65;urgent;9:19;11:19;Novo Polje, cesta VII;1;1260;Ljubljana - Polje;46.062060822541035;14.580703349387878
 ORD0488;12.48;express;17:03;19:03;Sojerjeva ulica;60;1117;Ljubljana;46.0811092;14.4734375
 ORD0489;16.12;urgent;18:34;20:34;Kongresni trg;5;1000;Ljubljana;46.0502555;14.5051391
 ORD0490;13.65;express;11:14;13:14;Ravno Brdo;19;1000;Ljubljana;46.0113599;14.6861813
