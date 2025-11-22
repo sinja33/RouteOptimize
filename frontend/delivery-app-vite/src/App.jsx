@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
-import { MapPin, Upload, X, Package, Trash2, Truck, Zap, AlertCircle } from 'lucide-react';
+import { MapPin, Upload, X, Package, Trash2, Truck, Zap, AlertCircle, TrendingDown, Clock, Map } from 'lucide-react';
 
 const App = () => {
   const [orders, setOrders] = useState([]);
@@ -10,11 +10,14 @@ const App = () => {
   const [uploadingVehicles, setUploadingVehicles] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
   const [cacheCount, setCacheCount] = useState(0);
-  const [optimizedRoutes, setOptimizedRoutes] = useState([]);
+  const [algorithmResults, setAlgorithmResults] = useState(null);
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState('distanceFirst');
   const [visibleVehicles, setVisibleVehicles] = useState(new Set());
+  const [recalculatingAlgo, setRecalculatingAlgo] = useState(null); // Track which algo is recalculating
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
+  const polylinesRef = useRef([]); // Store polyline layers
 
   const COLORS = ['#ff3b4a', '#00d4ff', '#7c3aed', '#f59e0b', '#10b981', 
                   '#ec4899', '#3b82f6', '#8b5cf6', '#f97316', '#14b8a6',
@@ -52,7 +55,7 @@ const App = () => {
       const map = window.L.map(mapRef.current).setView([46.1512, 14.9955], 8);
       
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+        attribution: 'Â© OpenStreetMap contributors',
         maxZoom: 19
       }).addTo(map);
 
@@ -169,7 +172,7 @@ const App = () => {
               await new Promise(resolve => setTimeout(resolve, 1100));
             }
           } else {
-            console.warn(`✗ Could not geocode: ${address}`);
+            console.warn(`âœ— Could not geocode: ${address}`);
             skippedCount++;
           }
         } else {
@@ -208,15 +211,28 @@ const App = () => {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      const processedVehicles = jsonData.map(row => ({
-        id: row.vehicle_id || row.vehicleId || row.id,
-        type: (row.type || '').toLowerCase(),
-        maxCapacity: parseFloat(row.max_capacity || row.maxCapacity || row.capacity || 0),
-        fuelType: (row.fuel_type || row.fuelType || '').toLowerCase(),
-        emissions: parseFloat(row.emission_g_co2_per_km || row.emissions || 0)
-      }));
+      const processedVehicles = jsonData.map((row, idx) => {
+        const columns = Object.keys(row);
+        
+        let maxCapacity = 0;
+        for (const col of columns) {
+          const lowerCol = col.toLowerCase().replace(/[_\s]/g, '');
+          if (lowerCol.includes('capacity') || lowerCol.includes('maxcapacity')) {
+            maxCapacity = parseFloat(row[col]) || 0;
+            break;
+          }
+        }
 
-      console.log('Loaded vehicles:', processedVehicles);
+        return {
+          id: row.vehicle_id || row.vehicleId || row.id || row.ID || `V${idx}`,
+          type: (row.type || row.Type || '').toLowerCase(),
+          maxCapacity: maxCapacity,
+          fuelType: (row.fuel_type || row.fuelType || row.fuel_Type || '').toLowerCase(),
+          emissions: parseFloat(row.emission_g_co2_per_km || row.emissions || 0)
+        };
+      });
+
+      console.log('Processed vehicles:', processedVehicles);
       setVehicles(processedVehicles);
       setUploadingVehicles(false);
 
@@ -250,7 +266,8 @@ const App = () => {
           <strong>${order.id}</strong><br/>
           ${order.address}<br/>
           Weight: ${order.weight}kg<br/>
-          Priority: ${order.priority}
+          Priority: ${order.priority}<br/>
+          Window: ${order.windowStart} - ${order.windowEnd}
         </div>
       `);
 
@@ -266,49 +283,118 @@ const App = () => {
     }
   };
 
-  // Hardcoded assignment for demo/testing
-  const assignOrdersToVehicles = () => {
+  // Call backend API for route optimization
+  const assignOrdersToVehicles = async () => {
     if (orders.length === 0 || vehicles.length === 0) {
       alert('Please upload both orders and vehicles first.');
       return;
     }
 
     setOptimizing(true);
-    console.log('Assigning orders to vehicles (hardcoded for demo)...');
+    console.log('Calling backend for route optimization with 2 algorithms...');
 
-    // Simple assignment: divide orders evenly across vehicles
-    const routes = [];
-    const ordersPerVehicle = Math.ceil(orders.length / vehicles.length);
+    try {
+      const response = await fetch('http://localhost:5000/api/optimize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orders: orders,
+          vehicles: vehicles
+        })
+      });
 
-    vehicles.forEach((vehicle, idx) => {
-      const startIdx = idx * ordersPerVehicle;
-      const endIdx = Math.min(startIdx + ordersPerVehicle, orders.length);
-      const vehicleOrders = orders.slice(startIdx, endIdx);
-
-      if (vehicleOrders.length > 0) {
-        const totalWeight = vehicleOrders.reduce((sum, o) => sum + o.weight, 0);
-        
-        routes.push({
-          vehicle: vehicle,
-          orders: vehicleOrders,
-          totalWeight: totalWeight,
-          totalDistance: 0, // Will calculate if needed
-          color: COLORS[idx % COLORS.length]
-        });
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status}`);
       }
-    });
 
-    console.log(`Assigned ${orders.length} orders to ${routes.length} vehicles`);
-    setOptimizedRoutes(routes);
-    
-    // Initialize all vehicles as visible
-    const allVehicleIds = new Set(vehicles.map(v => v.id));
+      const result = await response.json();
+      
+      console.log('Received algorithm results from backend:', result);
+      
+      setAlgorithmResults(result.algorithms);
+      setSelectedAlgorithm('distanceFirst');
+      
+      // Initialize all vehicles as visible for default algorithm
+      const defaultRoutes = result.algorithms.distanceFirst.routes;
+      const allVehicleIds = new Set(defaultRoutes.map(r => r.vehicle.id));
+      setVisibleVehicles(allVehicleIds);
+      
+      displayRoutesWithFilter(defaultRoutes, allVehicleIds);
+      setOptimizing(false);
+
+      alert(`✅ Optimization Complete!\n\nCompared 2 algorithms:\n🔵 Distance-First (lowest cost)\n🟢 Time-First (best service)\n\nSelect an algorithm to view results.`);
+
+    } catch (error) {
+      console.error('Backend error:', error);
+      setOptimizing(false);
+      alert(`âŒ Backend Error\n\nCouldn't connect to optimization backend.\n\nMake sure the Python backend is running:\npython backend_app.py\n\nError: ${error.message}`);
+    }
+  };
+
+  // Change selected algorithm
+  const selectAlgorithm = (algoKey) => {
+    setSelectedAlgorithm(algoKey);
+    const routes = algorithmResults[algoKey].routes;
+    const allVehicleIds = new Set(routes.map(r => r.vehicle.id));
     setVisibleVehicles(allVehicleIds);
-    
     displayRoutesWithFilter(routes, allVehicleIds);
-    setOptimizing(false);
+  };
 
-    alert(`Demo Assignment Complete!\n\n${orders.length} orders divided across ${routes.length} vehicles.\n\nUse the vehicle filters to show/hide routes.`);
+  // Recalculate with OSRM real road distances
+  const recalculateWithOSRM = async (algoKey) => {
+    setRecalculatingAlgo(algoKey);
+    console.log(`Recalculating ${algoKey} with OSRM...`);
+
+    try {
+      const routes = algorithmResults[algoKey].routes;
+
+      const response = await fetch('http://localhost:5000/api/recalculate-with-osrm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          routes: routes
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      console.log('Received OSRM results:', result);
+
+      // Update the algorithm results with new routes and stats
+      setAlgorithmResults(prev => ({
+        ...prev,
+        [algoKey]: {
+          ...prev[algoKey],
+          routes: result.routes,
+          stats: result.stats,
+          distanceType: 'road' // Mark as using real road distances
+        }
+      }));
+
+      // If this is the selected algorithm, update the display
+      if (selectedAlgorithm === algoKey) {
+        const allVehicleIds = new Set(result.routes.map(r => r.vehicle.id));
+        setVisibleVehicles(allVehicleIds);
+        displayRoutesWithFilter(result.routes, allVehicleIds);
+      }
+
+      setRecalculatingAlgo(null);
+
+      alert(`✅ Real Road Distances Calculated!\n\n${result.osrmStats.totalRequests} routes calculated\n${result.osrmStats.successRate}% success rate\n\nNew total: ${result.stats.totalDistance}km`);
+
+    } catch (error) {
+      console.error('OSRM recalculation error:', error);
+      setRecalculatingAlgo(null);
+      alert(`âŒ Error calculating real distances\n\nMake sure backend is running.\n\nError: ${error.message}`);
+    }
   };
 
   // Toggle vehicle visibility
@@ -321,141 +407,71 @@ const App = () => {
     }
     setVisibleVehicles(newVisible);
     
-    // Pass the NEW visible set directly to displayRoutes
-    displayRoutesWithFilter(optimizedRoutes, newVisible);
+    const routes = algorithmResults[selectedAlgorithm].routes;
+    displayRoutesWithFilter(routes, newVisible);
   };
 
   // Show all vehicles
   const showAllVehicles = () => {
-    const allVehicleIds = new Set(optimizedRoutes.map(r => r.vehicle.id));
+    const routes = algorithmResults[selectedAlgorithm].routes;
+    const allVehicleIds = new Set(routes.map(r => r.vehicle.id));
     setVisibleVehicles(allVehicleIds);
-    displayRoutesWithFilter(optimizedRoutes, allVehicleIds);
+    displayRoutesWithFilter(routes, allVehicleIds);
   };
 
   // Hide all vehicles
   const hideAllVehicles = () => {
+    const routes = algorithmResults[selectedAlgorithm].routes;
     const emptySet = new Set();
     setVisibleVehicles(emptySet);
-    displayRoutesWithFilter(optimizedRoutes, emptySet);
-  };
-
-  // Export orders with coordinates to Excel
-  const exportOrdersWithCoordinates = () => {
-    if (orders.length === 0) {
-      alert('No orders to export.');
-      return;
-    }
-
-    // Prepare data for export
-    const exportData = orders.map(order => ({
-      OrderID: order.id,
-      Address: order.address,
-      Latitude: order.lat,
-      Longitude: order.lng,
-      Weight_kg: order.weight,
-      Priority: order.priority,
-      WindowStart: order.windowStart || '',
-      WindowEnd: order.windowEnd || '',
-      // Include any other original data
-      ...order.originalData
-    }));
-
-    // Create worksheet
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    
-    // Create workbook
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders with Coordinates');
-    
-    // Generate filename with timestamp
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-    const filename = `orders_geocoded_${timestamp}.xlsx`;
-    
-    // Download
-    XLSX.writeFile(workbook, filename);
-    
-    console.log(`Exported ${orders.length} orders with coordinates`);
-    alert(`Exported ${orders.length} orders with lat/lng coordinates to:\n${filename}`);
-  };
-
-  // Export vehicle assignments to Excel
-  const exportVehicleAssignments = () => {
-    if (optimizedRoutes.length === 0) {
-      alert('No assignments to export. Please assign orders to vehicles first.');
-      return;
-    }
-
-    // Prepare data for export - one row per order with vehicle assignment
-    const exportData = [];
-    
-    optimizedRoutes.forEach(route => {
-      route.orders.forEach((order, idx) => {
-        exportData.push({
-          VehicleID: route.vehicle.id,
-          VehicleType: route.vehicle.type,
-          FuelType: route.vehicle.fuelType,
-          StopNumber: idx + 1,
-          OrderID: order.id,
-          Address: order.address,
-          Latitude: order.lat,
-          Longitude: order.lng,
-          Weight_kg: order.weight,
-          Priority: order.priority,
-          WindowStart: order.windowStart || '',
-          WindowEnd: order.windowEnd || ''
-        });
-      });
-    });
-
-    // Create worksheet
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    
-    // Create workbook
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Vehicle Assignments');
-    
-    // Add summary sheet
-    const summaryData = optimizedRoutes.map(route => ({
-      VehicleID: route.vehicle.id,
-      Type: route.vehicle.type,
-      FuelType: route.vehicle.fuelType,
-      Capacity_kg: route.vehicle.maxCapacity,
-      TotalStops: route.orders.length,
-      TotalWeight_kg: route.totalWeight,
-      LoadPercentage: ((route.totalWeight / route.vehicle.maxCapacity) * 100).toFixed(1) + '%'
-    }));
-    
-    const summarySheet = XLSX.utils.json_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
-    
-    // Generate filename with timestamp
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-    const filename = `vehicle_assignments_${timestamp}.xlsx`;
-    
-    // Download
-    XLSX.writeFile(workbook, filename);
-    
-    console.log(`Exported ${exportData.length} order assignments`);
-    alert(`Exported vehicle assignments:\n- ${exportData.length} orders\n- ${optimizedRoutes.length} vehicles\n\nFile: ${filename}`);
+    displayRoutesWithFilter(routes, emptySet);
   };
 
   // Display routes on map
   const displayRoutesWithFilter = (routes, filterSet = null) => {
     if (!mapInstanceRef.current) return;
 
-    // Use provided filter or fall back to state
     const vehiclesToShow = filterSet || visibleVehicles;
 
-    // Clear existing order markers
+    // Clear existing order markers and polylines
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
+    
+    polylinesRef.current.forEach(polyline => polyline.remove());
+    polylinesRef.current = [];
 
     // Draw routes (only for visible vehicles)
     routes.forEach((route) => {
-      // Skip if vehicle is not visible
       if (!vehiclesToShow.has(route.vehicle.id)) return;
       
       if (route.orders.length === 0) return;
+
+      // Draw route polylines if OSRM geometry exists
+      if (route.routeSegments && route.routeSegments.length > 0) {
+        route.routeSegments.forEach((segment, idx) => {
+          const polyline = window.L.polyline(segment.geometry, {
+            color: route.color,
+            weight: 4,
+            opacity: 0.7,
+            lineJoin: 'round',
+            lineCap: 'round',
+            // Dashed line for return to depot
+            dashArray: segment.returnToDepot ? '10, 10' : null
+          }).addTo(mapInstanceRef.current);
+
+          // Add popup to show segment info
+          polyline.bindPopup(`
+            <div style="font-family: 'Inter', sans-serif;">
+              <strong>${route.vehicle.id}</strong><br/>
+              ${segment.returnToDepot ? 'Return to depot' : `Segment ${idx + 1}`}<br/>
+              Distance: ${segment.distance.toFixed(1)}km<br/>
+              ${segment.fallback ? '✈️ Estimated (OSRM unavailable)' : '🛣️ Real road distance'}
+            </div>
+          `);
+
+          polylinesRef.current.push(polyline);
+        });
+      }
 
       // Add markers for orders in this route
       route.orders.forEach((order, idx) => {
@@ -468,13 +484,16 @@ const App = () => {
           })
         }).addTo(mapInstanceRef.current);
 
+        const onTimeStatus = order.onTime ? '✅ On Time' : `⚠️ Late by ${order.lateness} min`;
+        
         marker.bindPopup(`
           <div style="font-family: 'Inter', sans-serif;">
             <strong>Stop ${idx + 1} - ${order.id}</strong><br/>
             Vehicle: ${route.vehicle.id}<br/>
             ${order.address}<br/>
             Weight: ${order.weight}kg<br/>
-            Priority: ${order.priority}
+            Priority: ${order.priority}<br/>
+            ${onTimeStatus}
           </div>
         `);
 
@@ -486,10 +505,13 @@ const App = () => {
   const clearAll = () => {
     setOrders([]);
     setVehicles([]);
-    setOptimizedRoutes([]);
+    setAlgorithmResults(null);
+    setSelectedAlgorithm('distanceFirst');
     setVisibleVehicles(new Set());
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
+    polylinesRef.current.forEach(polyline => polyline.remove());
+    polylinesRef.current = [];
     if (mapInstanceRef.current) {
       mapInstanceRef.current.setView([46.1512, 14.9955], 8);
     }
@@ -507,6 +529,11 @@ const App = () => {
     setCacheCount(0);
     alert(`Cleared ${count} cached addresses`);
   };
+
+  // Get current routes
+  const currentRoutes = algorithmResults && selectedAlgorithm 
+    ? algorithmResults[selectedAlgorithm].routes 
+    : [];
 
   return (
     <div style={{
@@ -604,13 +631,14 @@ const App = () => {
         left: 0,
         top: 0,
         bottom: 0,
-        width: '380px',
+        width: '420px',
         background: 'linear-gradient(135deg, #1a1f2e 0%, #252d3d 100%)',
         boxShadow: '4px 0 24px rgba(0, 0, 0, 0.3)',
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
-        animation: 'slideIn 0.5s ease-out'
+        animation: 'slideIn 0.5s ease-out',
+        overflowY: 'auto'
       }}>
         {/* Header */}
         <div style={{
@@ -642,12 +670,12 @@ const App = () => {
             fontWeight: '400',
             letterSpacing: '0.3px'
           }}>
-            Multi-Vehicle Route Optimization
+            Smart Route Optimization
           </p>
         </div>
 
         {/* Content */}
-        <div style={{ padding: '24px 28px', flex: 1, overflowY: 'auto' }}>
+        <div style={{ padding: '24px 28px', flex: 1 }}>
           
           {/* Orders Upload */}
           <div style={{ marginBottom: '20px' }}>
@@ -672,18 +700,6 @@ const App = () => {
               textAlign: 'center',
               cursor: uploadingOrders ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              if (!uploadingOrders) {
-                e.currentTarget.style.background = 'rgba(255, 59, 74, 0.1)';
-                e.currentTarget.style.borderColor = '#ff3b4a';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!uploadingOrders) {
-                e.currentTarget.style.background = 'rgba(255, 59, 74, 0.05)';
-                e.currentTarget.style.borderColor = 'rgba(255, 59, 74, 0.3)';
-              }
             }}>
               <input
                 id="orders-upload"
@@ -712,41 +728,6 @@ const App = () => {
             </label>
           </div>
 
-          {/* Export Orders Button */}
-          {orders.length > 0 && (
-            <button
-              onClick={exportOrdersWithCoordinates}
-              style={{
-                width: '100%',
-                padding: '14px',
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '2px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '10px',
-                color: '#10b981',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
-                e.currentTarget.style.borderColor = '#10b981';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-              }}
-            >
-              <Package size={16} />
-              Export Orders with Coordinates
-            </button>
-          )}
-
           {/* Vehicles Upload */}
           <div style={{ marginBottom: '20px' }}>
             <h3 style={{
@@ -770,18 +751,6 @@ const App = () => {
               textAlign: 'center',
               cursor: uploadingVehicles ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              if (!uploadingVehicles) {
-                e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
-                e.currentTarget.style.borderColor = '#00d4ff';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!uploadingVehicles) {
-                e.currentTarget.style.background = 'rgba(0, 212, 255, 0.05)';
-                e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
-              }
             }}>
               <input
                 id="vehicles-upload"
@@ -810,7 +779,7 @@ const App = () => {
             </label>
           </div>
 
-          {/* Assign Button */}
+          {/* Optimize Button */}
           <button
             onClick={assignOrdersToVehicles}
             disabled={orders.length === 0 || vehicles.length === 0 || optimizing}
@@ -827,7 +796,7 @@ const App = () => {
               fontWeight: '700',
               cursor: (orders.length === 0 || vehicles.length === 0 || optimizing) ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease',
-              marginBottom: '20px',
+              marginBottom: '24px',
               textTransform: 'uppercase',
               letterSpacing: '1px',
               fontFamily: "'Space Mono', monospace",
@@ -835,108 +804,234 @@ const App = () => {
                 ? '0 8px 20px rgba(124, 58, 237, 0.4)' 
                 : 'none'
             }}
-            onMouseEnter={(e) => {
-              if (orders.length > 0 && vehicles.length > 0 && !optimizing) {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 12px 24px rgba(124, 58, 237, 0.5)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              if (orders.length > 0 && vehicles.length > 0 && !optimizing) {
-                e.currentTarget.style.boxShadow = '0 8px 20px rgba(124, 58, 237, 0.4)';
-              }
-            }}
           >
-            {optimizing ? '⚡ Assigning...' : '📦 Assign to Vehicles (Demo)'}
+            {optimizing ? '⚡ Optimizing...' : '🚀 Compare Algorithms'}
           </button>
 
-          {/* Routes Summary */}
-          {optimizedRoutes.length > 0 && (
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px'
+          {/* Algorithm Comparison */}
+          {algorithmResults && (
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{
+                margin: '0 0 16px 0',
+                fontSize: '12px',
+                fontWeight: '700',
+                color: '#e0e6ed',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                fontFamily: "'Space Mono', monospace"
               }}>
-                <h3 style={{
-                  margin: 0,
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  color: '#e0e6ed',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px',
-                  fontFamily: "'Space Mono', monospace"
-                }}>
-                  Routes ({optimizedRoutes.length})
-                </h3>
-              </div>
-
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
-              }}>
-                {optimizedRoutes.map((route, idx) => (
-                  <div key={idx} style={{
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    padding: '12px 14px',
-                    borderRadius: '10px',
-                    border: `1px solid ${route.color}40`,
-                    borderLeft: `4px solid ${route.color}`
+                Algorithm Comparison
+              </h3>
+              
+              {/* Algorithm Cards */}
+              {Object.entries(algorithmResults).map(([key, algo]) => {
+                const isRecalculating = recalculatingAlgo === key;
+                const isRoadDistance = algo.distanceType === 'road';
+                
+                return (
+                <div
+                  key={key}
+                  style={{
+                    background: selectedAlgorithm === key 
+                      ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(168, 85, 247, 0.15))' 
+                      : 'rgba(255, 255, 255, 0.03)',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    border: selectedAlgorithm === key 
+                      ? '2px solid rgba(124, 58, 237, 0.5)' 
+                      : '2px solid transparent',
+                    marginBottom: '12px',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {/* Algorithm Header */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '8px'
                   }}>
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: '8px'
-                    }}>
+                    <div style={{ flex: 1 }}>
                       <div style={{
-                        fontSize: '13px',
+                        fontSize: '14px',
                         fontWeight: '700',
                         color: '#e0e6ed',
-                        fontFamily: "'Space Mono', monospace"
+                        fontFamily: "'Space Mono', monospace",
+                        marginBottom: '4px'
                       }}>
-                        {route.vehicle.id}
+                        {key === 'distanceFirst' && 'ðŸ”µ'} 
+                        {key === 'timeFirst' && 'ðŸŸ¢'} 
+                        {' '}{algo.name}
                       </div>
                       <div style={{
-                        display: 'flex',
-                        gap: '6px',
-                        alignItems: 'center'
+                        fontSize: '10px',
+                        color: '#8b95a5',
+                        marginBottom: '8px'
                       }}>
-                        {route.vehicle.fuelType === 'electric' && (
-                          <Zap size={14} color="#10b981" />
-                        )}
-                        <span style={{
-                          fontSize: '11px',
-                          color: '#8b95a5',
-                          textTransform: 'uppercase'
-                        }}>
-                          {route.vehicle.type}
-                        </span>
+                        {algo.description}
+                      </div>
+                      
+                      {/* Distance Type Badge */}
+                      <div style={{
+                        display: 'inline-block',
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        fontSize: '9px',
+                        fontWeight: '600',
+                        background: isRoadDistance 
+                          ? 'rgba(16, 185, 129, 0.1)' 
+                          : 'rgba(245, 158, 11, 0.1)',
+                        color: isRoadDistance ? '#10b981' : '#f59e0b',
+                        border: `1px solid ${isRoadDistance ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`
+                      }}>
+                        {isRoadDistance ? '🛣️ Real Roads' : '✈️ Estimated (×1.3)'}
+                      </div>
+                    </div>
+                    
+                    {/* Choose Button */}
+                    <button
+                      onClick={() => recalculateWithOSRM(key)}
+                      disabled={isRecalculating}
+                      style={{
+                        padding: '8px 16px',
+                        background: isRecalculating 
+                          ? 'rgba(124, 58, 237, 0.2)' 
+                          : 'linear-gradient(135deg, #7c3aed, #a855f7)',
+                        border: 'none',
+                        borderRadius: '6px',
+                        color: '#ffffff',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        cursor: isRecalculating ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.2s ease',
+                        fontFamily: "'Space Mono', monospace",
+                        marginLeft: '8px'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isRecalculating) {
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(124, 58, 237, 0.4)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      {isRecalculating ? 'â³ Calculating...' : isRoadDistance ? 'âœ“ Chosen' : 'Choose'}
+                    </button>
+                  </div>
+
+                  {/* View Button - only show if not selected */}
+                  {selectedAlgorithm !== key && (
+                    <button
+                      onClick={() => selectAlgorithm(key)}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        background: 'transparent',
+                        border: '1px solid rgba(124, 58, 237, 0.3)',
+                        borderRadius: '6px',
+                        color: '#a855f7',
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        marginBottom: '12px',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(124, 58, 237, 0.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      👁️ View on Map
+                    </button>
+                  )}
+
+                  {/* Stats Grid */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '8px',
+                    fontSize: '11px'
+                  }}>
+                    <div style={{
+                      background: 'rgba(0, 0, 0, 0.2)',
+                      padding: '8px',
+                      borderRadius: '6px'
+                    }}>
+                      <div style={{ color: '#8b95a5', marginBottom: '2px' }}>
+                        <TrendingDown size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                        Total Distance
+                      </div>
+                      <div style={{ color: '#e0e6ed', fontWeight: '700' }}>
+                        {algo.stats.totalDistance} km
                       </div>
                     </div>
                     <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: '8px',
-                      fontSize: '11px',
-                      color: '#8b95a5'
+                      background: 'rgba(0, 0, 0, 0.2)',
+                      padding: '8px',
+                      borderRadius: '6px'
                     }}>
-                      <div>Stops: {route.orders.length}</div>
-                      <div>Dist: {route.totalDistance}km</div>
-                      <div>Load: {route.totalWeight}kg</div>
-                      <div>Cap: {route.vehicle.maxCapacity}kg</div>
+                      <div style={{ color: '#8b95a5', marginBottom: '2px' }}>
+                        <Clock size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                        On Time
+                      </div>
+                      <div style={{ color: '#e0e6ed', fontWeight: '700' }}>
+                        {algo.stats.onTimeDeliveries}/{algo.stats.assignedOrders}
+                      </div>
+                    </div>
+                    <div style={{
+                      background: 'rgba(0, 0, 0, 0.2)',
+                      padding: '8px',
+                      borderRadius: '6px'
+                    }}>
+                      <div style={{ color: '#8b95a5', marginBottom: '2px' }}>
+                        <Truck size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                        Vehicles Used
+                      </div>
+                      <div style={{ color: '#e0e6ed', fontWeight: '700' }}>
+                        {algo.stats.vehiclesUsed}
+                      </div>
+                    </div>
+                    <div style={{
+                      background: 'rgba(0, 0, 0, 0.2)',
+                      padding: '8px',
+                      borderRadius: '6px'
+                    }}>
+                      <div style={{ color: '#8b95a5', marginBottom: '2px' }}>
+                        <Package size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                        Utilization
+                      </div>
+                      <div style={{ color: '#e0e6ed', fontWeight: '700' }}>
+                        {algo.stats.avgUtilization}%
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                  
+                  {algo.stats.lateDeliveries > 0 && (
+                    <div style={{
+                      marginTop: '8px',
+                      padding: '6px 8px',
+                      background: 'rgba(245, 158, 11, 0.1)',
+                      border: '1px solid rgba(245, 158, 11, 0.3)',
+                      borderRadius: '6px',
+                      fontSize: '10px',
+                      color: '#f59e0b'
+                    }}>
+                      {algo.stats.lateDeliveries} late ({algo.stats.avgLateness} min avg)
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             </div>
           )}
 
           {/* Vehicle Filters */}
-          {optimizedRoutes.length > 0 && (
+          {currentRoutes.length > 0 && (
             <div style={{ marginBottom: '20px' }}>
               <div style={{
                 display: 'flex',
@@ -965,16 +1060,7 @@ const App = () => {
                       cursor: 'pointer',
                       padding: '4px 8px',
                       borderRadius: '6px',
-                      fontSize: '10px',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(124, 58, 237, 0.1)';
-                      e.currentTarget.style.color = '#a855f7';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                      e.currentTarget.style.color = '#8b95a5';
+                      fontSize: '10px'
                     }}
                   >
                     All
@@ -988,16 +1074,7 @@ const App = () => {
                       cursor: 'pointer',
                       padding: '4px 8px',
                       borderRadius: '6px',
-                      fontSize: '10px',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 59, 74, 0.1)';
-                      e.currentTarget.style.color = '#ff3b4a';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                      e.currentTarget.style.color = '#8b95a5';
+                      fontSize: '10px'
                     }}
                   >
                     None
@@ -1008,9 +1085,11 @@ const App = () => {
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '6px'
+                gap: '6px',
+                maxHeight: '300px',
+                overflowY: 'auto'
               }}>
-                {optimizedRoutes.map((route) => (
+                {currentRoutes.map((route) => (
                   <label key={route.vehicle.id} style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -1019,14 +1098,7 @@ const App = () => {
                     background: 'rgba(255, 255, 255, 0.03)',
                     borderRadius: '8px',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
                     borderLeft: `3px solid ${route.color}`
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
                   }}>
                     <input
                       type="checkbox"
@@ -1052,48 +1124,13 @@ const App = () => {
                         fontSize: '10px',
                         color: '#8b95a5'
                       }}>
-                        {route.orders.length} stops • {route.totalWeight.toFixed(1)}kg
+                        {route.orders.length} stops â€¢ {route.totalDistance}km â€¢ {route.onTimeDeliveries}/{route.orders.length} on time
                       </div>
                     </div>
                   </label>
                 ))}
               </div>
             </div>
-          )}
-
-          {/* Export Vehicle Assignments Button */}
-          {optimizedRoutes.length > 0 && (
-            <button
-              onClick={exportVehicleAssignments}
-              style={{
-                width: '100%',
-                padding: '14px',
-                background: 'rgba(124, 58, 237, 0.1)',
-                border: '2px solid rgba(124, 58, 237, 0.3)',
-                borderRadius: '10px',
-                color: '#a855f7',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(124, 58, 237, 0.15)';
-                e.currentTarget.style.borderColor = '#a855f7';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(124, 58, 237, 0.1)';
-                e.currentTarget.style.borderColor = 'rgba(124, 58, 237, 0.3)';
-              }}
-            >
-              <Truck size={16} />
-              Export Vehicle Assignments
-            </button>
           )}
 
           {/* Cache Info */}
@@ -1123,16 +1160,7 @@ const App = () => {
                   cursor: 'pointer',
                   padding: '4px 10px',
                   borderRadius: '6px',
-                  fontSize: '10px',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 59, 74, 0.1)';
-                  e.currentTarget.style.color = '#ff3b4a';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = '#8b95a5';
+                  fontSize: '10px'
                 }}
               >
                 Clear
@@ -1154,21 +1182,10 @@ const App = () => {
                 fontSize: '12px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 59, 74, 0.1)';
-                e.currentTarget.style.color = '#ff3b4a';
-                e.currentTarget.style.borderColor = '#ff3b4a';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = '#8b95a5';
-                e.currentTarget.style.borderColor = 'rgba(255, 59, 74, 0.3)';
               }}
             >
               <Trash2 size={14} />
@@ -1181,7 +1198,7 @@ const App = () => {
       {/* Map Container */}
       <div ref={mapRef} style={{
         position: 'absolute',
-        left: '380px',
+        left: '420px',
         right: 0,
         top: 0,
         bottom: 0,
@@ -1192,7 +1209,7 @@ const App = () => {
       {!mapLoaded && (
         <div style={{
           position: 'absolute',
-          left: '380px',
+          left: '420px',
           right: 0,
           top: 0,
           bottom: 0,
