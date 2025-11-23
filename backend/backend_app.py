@@ -160,9 +160,9 @@ def distance_first_algorithm(orders, vehicles):
         # Max radius based on vehicle type
         max_radius = float('inf')
         if vehicle_type == 'bike':
-            max_radius = 15  # km
+            max_radius = 20  # km
         elif vehicle_type == 'van':
-            max_radius = 50  # km
+            max_radius = 150  # km
         
         # Keep assigning nearest orders until vehicle is full
         while True:
@@ -211,6 +211,15 @@ def distance_first_algorithm(orders, vehicles):
             # Check time window
             window_end = time_to_minutes(nearest_order.get('windowEnd', ''))
             on_time, lateness = calculate_time_penalty(arrival_time, window_end)
+            
+            # OPTIONAL: Skip if extremely late (>4 hours) - Distance-First prioritizes distance over time
+            # If you need strict time adherence, use Time-First algorithm instead
+            MAX_EXTREME_LATENESS = 240  # 4 hours - only skip EXTREMELY late deliveries
+            if lateness > MAX_EXTREME_LATENESS:
+                # This order is impossibly late, skip it and try next nearest
+                assigned_orders.add(nearest_order['id'])  # Mark as "handled" to avoid infinite loop
+                print(f"   ⚠️  Skipped {nearest_order['id']} - extremely late (>{MAX_EXTREME_LATENESS} min)")
+                continue
             
             if on_time:
                 route['onTimeDeliveries'] += 1
@@ -304,6 +313,8 @@ def time_first_algorithm(orders, vehicles):
     
     assigned_orders = set()
     avg_speed_kmh = 40
+    MAX_ACCEPTABLE_LATENESS = 120  # Maximum 2 hours late (can adjust to 60 for 1 hour)
+    skipped_too_late = 0
     
     # Assign orders by time window priority
     for order in sorted_orders:
@@ -350,6 +361,10 @@ def time_first_algorithm(orders, vehicles):
             # Calculate time window satisfaction
             on_time, lateness = calculate_time_penalty(arrival_time, window_end)
             
+            # CONSTRAINT: Skip if too late (more than MAX_ACCEPTABLE_LATENESS)
+            if lateness > MAX_ACCEPTABLE_LATENESS:
+                continue  # Don't consider this route
+            
             # Score: prefer on-time, then shorter distance
             time_score = 0 if on_time else lateness * 10  # Heavy penalty for late
             score = time_score + dist_to_order
@@ -362,8 +377,8 @@ def time_first_algorithm(orders, vehicles):
                 best_on_time = on_time
                 best_lateness = lateness
         
-        # Assign to best route if found
-        if best_route:
+        # Assign to best route if found AND lateness is acceptable
+        if best_route and best_lateness <= MAX_ACCEPTABLE_LATENESS:
             order_with_time = order.copy()
             order_with_time['arrivalTime'] = best_arrival
             order_with_time['onTime'] = best_on_time
@@ -383,6 +398,10 @@ def time_first_algorithm(orders, vehicles):
             best_route['totalLateness'] += best_lateness
             
             assigned_orders.add(order['id'])
+        else:
+            # Order cannot be delivered within acceptable lateness
+            skipped_too_late += 1
+            print(f"   ⚠️  Skipped {order['id']} - would be too late (>{MAX_ACCEPTABLE_LATENESS} min)")
     
     # Add return distances and clean up empty routes
     final_routes = []
@@ -404,6 +423,11 @@ def time_first_algorithm(orders, vehicles):
             del route['currentTime']
             
             final_routes.append(route)
+    
+    # Log summary
+    if skipped_too_late > 0:
+        print(f"\n   ⚠️  Warning: {skipped_too_late} orders skipped (would exceed {MAX_ACCEPTABLE_LATENESS} min late)")
+        print(f"   💡 Consider adding more vehicles or adjusting time windows")
     
     return final_routes, len(assigned_orders)
 

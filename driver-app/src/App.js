@@ -209,7 +209,7 @@ const DriverApp = () => {
     return (
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #1a1f2e 0%, #252d3d 100%)',
         padding: '20px',
         fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
       }}>
@@ -236,27 +236,24 @@ const DriverApp = () => {
           paddingTop: '20px'
         }}>
           <div style={{
-            width: '80px',
-            height: '80px',
-            background: 'white',
-            borderRadius: '20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 20px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+            gap: '12px',
+            marginBottom: '8px'
           }}>
-            <Truck size={40} color="#667eea" strokeWidth={2.5} />
+            <Package size={28} color="#ff3b4a" strokeWidth={2.5} />
+            <h1 style={{
+              margin: 0,
+              fontSize: '32px',
+              fontWeight: '700',
+              color: '#ffffff',
+              fontFamily: "'Space Mono', monospace",
+              letterSpacing: '-0.5px'
+            }}>
+              RouteOptimize
+            </h1>
           </div>
-          <h1 style={{
-            margin: '0 0 10px 0',
-            fontSize: '32px',
-            fontWeight: '800',
-            color: 'white',
-            letterSpacing: '-0.5px'
-          }}>
-            Driver Portal
-          </h1>
           <p style={{
             margin: 0,
             fontSize: '16px',
@@ -298,7 +295,6 @@ const DriverApp = () => {
                   marginBottom: '16px',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                   animationDelay: `${idx * 0.1}s`
                 }}
                 onClick={() => fetchRoute(vehicle.id)}
