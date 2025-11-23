@@ -174,11 +174,22 @@ def verify_solution(data, manager, routing, solution, orders_csv: Path):
                 
                 if arrival_time < window_start or arrival_time > window_end:
                     order_id = df.iloc[node-1]['OrderID']
+                    
+                    # Calculate how early/late
+                    if arrival_time < window_start:
+                        violation_mins = window_start - arrival_time
+                        violation_type = f"{violation_mins}min EARLY"
+                    else:
+                        violation_mins = arrival_time - window_end
+                        violation_type = f"{violation_mins}min LATE"
+                    
                     time_window_violations.append({
                         'order_id': order_id,
                         'arrival': arrival_time,
                         'window': (window_start, window_end),
-                        'vehicle': data['vehicle_ids'][vehicle_id]
+                        'vehicle': data['vehicle_ids'][vehicle_id],
+                        'violation_type': violation_type,
+                        'violation_mins': violation_mins
                     })
             
             index = solution.Value(routing.NextVar(index))
@@ -212,11 +223,23 @@ def verify_solution(data, manager, routing, solution, orders_csv: Path):
         print(f"  ✅ ALL DELIVERIES ON TIME!")
         print(f"  All {assigned_count} deliveries arrived within their time windows")
     else:
-        print(f"  ⚠️  {len(time_window_violations)} time window violations!")
-        for violation in time_window_violations[:10]:
-            print(f"    - {violation['order_id']}: arrived {format_time(violation['arrival'])}, "
-                  f"window {format_time(violation['window'][0])}-{format_time(violation['window'][1])} "
-                  f"(vehicle {violation['vehicle']})")
+        print(f"  ⚠️  {len(time_window_violations)} time window violations")
+        
+        # Count early vs late
+        early = [v for v in time_window_violations if v['arrival'] < v['window'][0]]
+        late = [v for v in time_window_violations if v['arrival'] > v['window'][1]]
+        
+        print(f"     - {len(early)} early deliveries")
+        print(f"     - {len(late)} late deliveries")
+        print(f"\n  Worst violations:")
+        
+        # Show worst violations
+        sorted_violations = sorted(time_window_violations, key=lambda x: x['violation_mins'], reverse=True)
+        for violation in sorted_violations[:10]:
+            print(f"    - {violation['order_id']}: {violation['violation_type']} "
+                  f"(arrived {format_time(violation['arrival'])}, "
+                  f"window {format_time(violation['window'][0])}-{format_time(violation['window'][1])}, "
+                  f"vehicle {violation['vehicle']})")
         if len(time_window_violations) > 10:
             print(f"    ... and {len(time_window_violations) - 10} more")
     
@@ -370,13 +393,14 @@ def save_solution_json(data, manager, routing, solution, output_path: Path):
     print(f"\n✓ Solution saved to {output_path}")
 
 
-def solve_vrptw(data, max_route_duration=None, emission_weight=0.0):
+def solve_vrptw(data, max_route_duration=None, emission_weight=0.0, allow_time_violations=False):
     """Solve the VRPTW.
     
     Args:
         data: Data model dictionary
         max_route_duration: Optional maximum minutes per vehicle route
         emission_weight: Weight for CO2 emissions in cost (0.0 = ignore emissions, 1.0 = equal to time)
+        allow_time_violations: If True, allows deliveries outside time windows with penalties
     """
     # Create the routing index manager
     manager = pywrapcp.RoutingIndexManager(
@@ -449,10 +473,33 @@ def solve_vrptw(data, max_route_duration=None, emission_weight=0.0):
     time_dimension = routing.GetDimensionOrDie('Time')
     
     # Add time window constraints for each location except depot
-    for location_idx in range(1, len(data['time_windows'])):
-        index = manager.NodeToIndex(location_idx)
-        start_time, end_time = data['time_windows'][location_idx]
-        time_dimension.CumulVar(index).SetRange(start_time, end_time)
+    if allow_time_violations:
+        # Soft time windows: Allow violations with penalties
+        # Widen the hard constraint window but penalize violations
+        for location_idx in range(1, len(data['time_windows'])):
+            index = manager.NodeToIndex(location_idx)
+            start_time, end_time = data['time_windows'][location_idx]
+            
+            # Set wide hard bounds (allow +/- 60 minutes flexibility)
+            time_dimension.CumulVar(index).SetRange(
+                max(0, start_time - 60),  # Can be up to 1 hour early
+                min(1440, end_time + 60)   # Can be up to 1 hour late
+            )
+            
+            # Add soft penalty for being outside the preferred window
+            # Cost increases the further outside the window
+            time_dimension.SetCumulVarSoftUpperBound(index, end_time, 10000)  # Penalty for late
+            time_dimension.SetCumulVarSoftLowerBound(index, start_time, 10000)  # Penalty for early
+        
+        print(f"  Using SOFT time windows (±60 min flexibility with penalties)")
+    else:
+        # Hard time windows: Must arrive within window or order is dropped
+        for location_idx in range(1, len(data['time_windows'])):
+            index = manager.NodeToIndex(location_idx)
+            start_time, end_time = data['time_windows'][location_idx]
+            time_dimension.CumulVar(index).SetRange(start_time, end_time)
+        
+        print(f"  Using HARD time windows (strict, no violations allowed)")
     
     # Add time window constraints for depot (for each vehicle)
     depot_start, depot_end = data['time_windows'][0]
@@ -498,7 +545,13 @@ def solve_vrptw(data, max_route_duration=None, emission_weight=0.0):
     )
     
     # Allow dropping nodes with penalty
-    penalty = 1000000  # High penalty for dropped nodes
+    if allow_time_violations:
+        # Lower penalty for dropping since we can violate windows
+        penalty = 50000000  # Very high penalty - prefer time violations over dropping
+    else:
+        # Higher penalty for dropping with hard windows
+        penalty = 1000000
+    
     for node in range(1, len(data['time_windows'])):
         routing.AddDisjunction([manager.NodeToIndex(node)], penalty)
     
@@ -579,6 +632,11 @@ def main():
         default=0.0,
         help='Weight for CO2 emissions in optimization (0.0=ignore, 0.5=balance, 1.0=prioritize)'
     )
+    parser.add_argument(
+        '--allow-time-violations',
+        action='store_true',
+        help='Allow deliveries outside time windows (with penalty) to deliver all orders'
+    )
     
     args = parser.parse_args()
     
@@ -592,7 +650,7 @@ def main():
     print(f"  Matrix size: {len(data['time_matrix'])}x{len(data['time_matrix'])}\n")
     
     # Solve
-    manager, routing, solution = solve_vrptw(data, args.max_route_duration, args.emission_weight)
+    manager, routing, solution = solve_vrptw(data, args.max_route_duration, args.emission_weight, args.allow_time_violations)
     
     if solution:
         print("\n" + "="*60)
