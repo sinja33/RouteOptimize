@@ -337,9 +337,17 @@ const App = () => {
   const selectAlgorithm = (algoKey) => {
     setSelectedAlgorithm(algoKey);
     const routes = algorithmResults[algoKey].routes;
+    const stats = algorithmResults[algoKey].stats;
     const allVehicleIds = new Set(routes.map(r => r.vehicle.id));
     setVisibleVehicles(allVehicleIds);
     displayRoutesWithFilter(routes, allVehicleIds);
+    
+    // Update driver app routes
+    fetch('http://localhost:5000/api/driver/set-routes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ routes, stats })
+    }).catch(err => console.log('Driver app update failed:', err));
   };
 
   // Recalculate with OSRM real road distances
@@ -384,6 +392,13 @@ const App = () => {
         const allVehicleIds = new Set(result.routes.map(r => r.vehicle.id));
         setVisibleVehicles(allVehicleIds);
         displayRoutesWithFilter(result.routes, allVehicleIds);
+        
+        // Update driver app with new routes
+        fetch('http://localhost:5000/api/driver/set-routes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ routes: result.routes, stats: result.stats })
+        }).catch(err => console.log('Driver app update failed:', err));
       }
 
       setRecalculatingAlgo(null);

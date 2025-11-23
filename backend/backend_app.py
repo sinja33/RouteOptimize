@@ -109,7 +109,7 @@ def distance_first_algorithm(orders, vehicles):
     3. Minimizes total distance driven
     """
     
-    print(f"\n ALGORITHM 1: DISTANCE-FIRST (Minimize Kilometers)")
+    print(f"\nðŸ”§ ALGORITHM 1: DISTANCE-FIRST (Minimize Kilometers)")
     
     # Sort vehicles by capacity (largest first) and prefer electric
     sorted_vehicles = sorted(vehicles, 
@@ -121,8 +121,8 @@ def distance_first_algorithm(orders, vehicles):
     # Priority mapping (still consider priority as tie-breaker)
     priority_map = {'express': 0, 'urgent': 1, 'standard': 2}
     
-    print(f"{len(orders)} orders to assign")
-    print(f"{len(sorted_vehicles)} vehicles available")
+    print(f"ðŸ“‹ {len(orders)} orders to assign")
+    print(f"ðŸš› {len(sorted_vehicles)} vehicles available")
     
     routes = []
     assigned_orders = set()
@@ -262,7 +262,7 @@ def time_first_algorithm(orders, vehicles):
     3. Prioritizes meeting time windows over distance
     """
     
-    print(f"\nALGORITHM 2: TIME-FIRST (Meet Time Windows)")
+    print(f"\nðŸ”§ ALGORITHM 2: TIME-FIRST (Meet Time Windows)")
     
     # Sort vehicles by capacity
     sorted_vehicles = sorted(vehicles, 
@@ -468,10 +468,10 @@ def optimize_routes():
             }), 400
         
         print(f"\n{'='*60}")
-        print(f"Received {len(orders)} orders and {len(vehicles)} vehicles")
+        print(f"ðŸ“¦ Received {len(orders)} orders and {len(vehicles)} vehicles")
         
         # Run both algorithms
-        print(f"\nRunning 2 optimization algorithms...")
+        print(f"\nðŸš€ Running 2 optimization algorithms...")
         
         # Algorithm 1: Distance-First
         routes_distance, assigned_distance = distance_first_algorithm(orders.copy(), vehicles.copy())
@@ -482,14 +482,14 @@ def optimize_routes():
         stats_time = calculate_algorithm_stats(routes_time, len(orders))
         
         print(f"\n{'='*60}")
-        print(f"COMPARISON RESULTS:")
-        print(f"\nDistance-First:")
+        print(f"ðŸ“Š COMPARISON RESULTS:")
+        print(f"\nðŸ”µ Distance-First:")
         print(f"   Total Distance: {stats_distance['totalDistance']}km")
         print(f"   On-Time: {stats_distance['onTimeDeliveries']}/{stats_distance['assignedOrders']} ({stats_distance['onTimeDeliveries']/stats_distance['assignedOrders']*100:.1f}%)")
         print(f"   Vehicles: {stats_distance['vehiclesUsed']}")
         print(f"   Utilization: {stats_distance['avgUtilization']:.1f}%")
         
-        print(f"\nTime-First:")
+        print(f"\nðŸŸ¢ Time-First:")
         print(f"   Total Distance: {stats_time['totalDistance']}km (+{stats_time['totalDistance']-stats_distance['totalDistance']:.1f}km)")
         print(f"   On-Time: {stats_time['onTimeDeliveries']}/{stats_time['assignedOrders']} ({stats_time['onTimeDeliveries']/stats_time['assignedOrders']*100:.1f}%)")
         print(f"   Vehicles: {stats_time['vehiclesUsed']}")
@@ -516,10 +516,14 @@ def optimize_routes():
             'totalVehicles': len(vehicles)
         }
         
+        # Store default algorithm routes for driver app
+        global latest_routes
+        latest_routes = {'routes': routes_distance, 'stats': stats_distance}
+        
         return jsonify(response), 200
         
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"âŒ Error: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({
@@ -550,7 +554,7 @@ def recalculate_with_osrm():
             return jsonify({'error': 'No routes provided'}), 400
         
         print(f"\n{'='*60}")
-        print(f"Recalculating with OSRM for {len(routes)} routes...")
+        print(f"ðŸ›£ï¸  Recalculating with OSRM for {len(routes)} routes...")
         
         depot_lat, depot_lng = 46.0569, 14.5058
         total_requests = 0
@@ -636,14 +640,14 @@ def recalculate_with_osrm():
             route['distanceType'] = 'road'  # Mark as real road distance
             route['routeSegments'] = route_segments  # Add route geometry
             
-            print(f"   Total: {route['totalDistance']}km (real roads)")
+            print(f"   âœ… Total: {route['totalDistance']}km (real roads)")
         
         # Calculate updated statistics
         total_orders = sum(len(r['orders']) for r in routes)
         stats = calculate_algorithm_stats(routes, total_orders)
         
         print(f"\n{'='*60}")
-        print(f"OSRM Recalculation Complete:")
+        print(f"ðŸ›£ï¸  OSRM Recalculation Complete:")
         print(f"   Total API calls: {total_requests}")
         print(f"   Failed calls: {failed_requests}")
         print(f"   Success rate: {(total_requests-failed_requests)/total_requests*100:.1f}%")
@@ -660,10 +664,14 @@ def recalculate_with_osrm():
             }
         }
         
+        # Store routes for driver app
+        global latest_routes
+        latest_routes = {'routes': routes, 'stats': stats}
+        
         return jsonify(response), 200
         
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"âŒ Error: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -676,10 +684,66 @@ def health_check():
         'message': 'Backend is running with 2 algorithms'
     }), 200
 
+# Store the latest optimization results for driver app
+latest_routes = {}
+
+@app.route('/api/driver/vehicles', methods=['GET'])
+def get_driver_vehicles():
+    """
+    Get list of vehicles with basic route info for driver selection
+    """
+    if not latest_routes:
+        return jsonify({'vehicles': []}), 200
+    
+    vehicles = []
+    for route in latest_routes.get('routes', []):
+        vehicles.append({
+            'id': route['vehicle']['id'],
+            'color': route.get('color', '#ff3b4a'),
+            'stops': len(route['orders']),
+            'distance': route['totalDistance'],
+            'type': route['vehicle'].get('type', 'van')
+        })
+    
+    return jsonify({'vehicles': vehicles}), 200
+
+@app.route('/api/driver/route/<vehicle_id>', methods=['GET'])
+def get_driver_route(vehicle_id):
+    """
+    Get detailed route information for a specific vehicle
+    """
+    if not latest_routes:
+        return jsonify({'error': 'No routes available'}), 404
+    
+    # Find the route for this vehicle
+    for route in latest_routes.get('routes', []):
+        if route['vehicle']['id'] == vehicle_id:
+            return jsonify(route), 200
+    
+    return jsonify({'error': 'Vehicle not found'}), 404
+
+@app.route('/api/driver/set-routes', methods=['POST'])
+def set_driver_routes():
+    """
+    Set which routes should be available to drivers
+    Called by main app when user selects an algorithm
+    """
+    try:
+        data = request.json
+        routes = data.get('routes', [])
+        stats = data.get('stats', {})
+        
+        global latest_routes
+        latest_routes = {'routes': routes, 'stats': stats}
+        
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
-    print("Starting Route Optimization Backend")
-    print("Running on http://localhost:5000")
-    print("Frontend should connect to: http://localhost:5000/api/optimize")
-    print("2 Algorithms: Distance-First & Time-First")
+    print("ðŸš€ Starting Route Optimization Backend")
+    print("ðŸ“ Running on http://localhost:5000")
+    print("ðŸ”— Frontend should connect to: http://localhost:5000/api/optimize")
+    print("âœ… 2 Algorithms: Distance-First & Time-First")
     print("=" * 60)
     app.run(debug=True, port=5000)
