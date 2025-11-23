@@ -137,6 +137,100 @@ def format_time(minutes: int) -> str:
     return f"{h:02d}:{m:02d}"
 
 
+def verify_solution(data, manager, routing, solution, orders_csv: Path):
+    """Verify that all deliveries were made and within time windows."""
+    print("\n" + "="*60)
+    print("VERIFICATION")
+    print("="*60)
+    
+    # Load original orders to get their IDs and time windows
+    df = pd.read_csv(orders_csv, sep=';', decimal=',')
+    df.columns = df.columns.str.strip()
+    
+    time_dimension = routing.GetDimensionOrDie('Time')
+    
+    # Track which orders were assigned
+    assigned_orders = set()
+    time_window_violations = []
+    
+    for vehicle_id in range(data['num_vehicles']):
+        if not routing.IsVehicleUsed(solution, vehicle_id):
+            continue
+        
+        index = routing.Start(vehicle_id)
+        
+        while not routing.IsEnd(index):
+            node = manager.IndexToNode(index)
+            
+            if node != 0:  # Not depot
+                assigned_orders.add(node)
+                
+                # Check time window compliance
+                time_var = time_dimension.CumulVar(index)
+                arrival_time = solution.Min(time_var)
+                
+                # Get the time window for this order
+                window_start, window_end = data['time_windows'][node]
+                
+                if arrival_time < window_start or arrival_time > window_end:
+                    order_id = df.iloc[node-1]['OrderID']
+                    time_window_violations.append({
+                        'order_id': order_id,
+                        'arrival': arrival_time,
+                        'window': (window_start, window_end),
+                        'vehicle': data['vehicle_ids'][vehicle_id]
+                    })
+            
+            index = solution.Value(routing.NextVar(index))
+    
+    # Check for unassigned orders
+    total_orders = len(data['time_windows']) - 1  # Exclude depot
+    assigned_count = len(assigned_orders)
+    unassigned_count = total_orders - assigned_count
+    
+    print(f"\n✓ Delivery Completion:")
+    print(f"  Total orders: {total_orders}")
+    print(f"  Delivered: {assigned_count}")
+    print(f"  Unassigned: {unassigned_count}")
+    
+    if unassigned_count == 0:
+        print(f"  ✅ ALL ORDERS DELIVERED!")
+    else:
+        print(f"  ⚠️  {unassigned_count} orders NOT delivered")
+        # Show which orders
+        unassigned_nodes = set(range(1, total_orders + 1)) - assigned_orders
+        print(f"\n  Unassigned order IDs:")
+        for node in sorted(list(unassigned_nodes))[:10]:
+            order_id = df.iloc[node-1]['OrderID']
+            window_start, window_end = data['time_windows'][node]
+            print(f"    - {order_id} (window: {format_time(window_start)}-{format_time(window_end)})")
+        if len(unassigned_nodes) > 10:
+            print(f"    ... and {len(unassigned_nodes) - 10} more")
+    
+    print(f"\n✓ Time Window Compliance:")
+    if len(time_window_violations) == 0:
+        print(f"  ✅ ALL DELIVERIES ON TIME!")
+        print(f"  All {assigned_count} deliveries arrived within their time windows")
+    else:
+        print(f"  ⚠️  {len(time_window_violations)} time window violations!")
+        for violation in time_window_violations[:10]:
+            print(f"    - {violation['order_id']}: arrived {format_time(violation['arrival'])}, "
+                  f"window {format_time(violation['window'][0])}-{format_time(violation['window'][1])} "
+                  f"(vehicle {violation['vehicle']})")
+        if len(time_window_violations) > 10:
+            print(f"    ... and {len(time_window_violations) - 10} more")
+    
+    print("\n" + "="*60)
+    
+    return {
+        'all_delivered': unassigned_count == 0,
+        'all_on_time': len(time_window_violations) == 0,
+        'delivered_count': assigned_count,
+        'total_count': total_orders,
+        'violations': len(time_window_violations)
+    }
+
+
 def print_solution(data, manager, routing, solution):
     """Print solution to console."""
     print(f"\nObjective: {solution.ObjectiveValue()}")
@@ -505,11 +599,24 @@ def main():
         print("SOLUTION FOUND")
         print("="*60)
         
+        # Verify solution first
+        verification = verify_solution(data, manager, routing, solution, args.orders_csv)
+        
         # Print solution
         print_solution(data, manager, routing, solution)
         
         # Save to JSON
         save_solution_json(data, manager, routing, solution, args.output_json)
+        
+        # Final summary
+        print("\n" + "="*60)
+        if verification['all_delivered'] and verification['all_on_time']:
+            print("✅ PERFECT SOLUTION: All orders delivered on time!")
+        elif verification['all_delivered']:
+            print("⚠️  All orders delivered but some time violations")
+        else:
+            print(f"⚠️  {verification['total_count'] - verification['delivered_count']} orders undelivered")
+        print("="*60)
     else:
         print("\n❌ No solution found!")
 
