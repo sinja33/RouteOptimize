@@ -109,7 +109,7 @@ def distance_first_algorithm(orders, vehicles):
     3. Minimizes total distance driven
     """
     
-    print(f"\nðŸ”§ ALGORITHM 1: DISTANCE-FIRST (Minimize Kilometers)")
+    print(f"\nÃ°Å¸â€Â§ ALGORITHM 1: DISTANCE-FIRST (Minimize Kilometers)")
     
     # Sort vehicles by capacity (largest first) and prefer electric
     sorted_vehicles = sorted(vehicles, 
@@ -121,8 +121,8 @@ def distance_first_algorithm(orders, vehicles):
     # Priority mapping (still consider priority as tie-breaker)
     priority_map = {'express': 0, 'urgent': 1, 'standard': 2}
     
-    print(f"ðŸ“‹ {len(orders)} orders to assign")
-    print(f"ðŸš› {len(sorted_vehicles)} vehicles available")
+    print(f"Ã°Å¸â€œâ€¹ {len(orders)} orders to assign")
+    print(f"Ã°Å¸Å¡â€º {len(sorted_vehicles)} vehicles available")
     
     routes = []
     assigned_orders = set()
@@ -218,7 +218,7 @@ def distance_first_algorithm(orders, vehicles):
             if lateness > MAX_EXTREME_LATENESS:
                 # This order is impossibly late, skip it and try next nearest
                 assigned_orders.add(nearest_order['id'])  # Mark as "handled" to avoid infinite loop
-                print(f"   ⚠️  Skipped {nearest_order['id']} - extremely late (>{MAX_EXTREME_LATENESS} min)")
+                print(f"   âš ï¸  Skipped {nearest_order['id']} - extremely late (>{MAX_EXTREME_LATENESS} min)")
                 continue
             
             if on_time:
@@ -271,7 +271,7 @@ def time_first_algorithm(orders, vehicles):
     3. Prioritizes meeting time windows over distance
     """
     
-    print(f"\nðŸ”§ ALGORITHM 2: TIME-FIRST (Meet Time Windows)")
+    print(f"\nÃ°Å¸â€Â§ ALGORITHM 2: TIME-FIRST (Meet Time Windows)")
     
     # Sort vehicles by capacity
     sorted_vehicles = sorted(vehicles, 
@@ -284,8 +284,8 @@ def time_first_algorithm(orders, vehicles):
     sorted_orders = sorted(orders, 
                           key=lambda x: time_to_minutes(x.get('windowEnd', '23:59:00')) or 1440)
     
-    print(f"ðŸ“‹ {len(orders)} orders to assign")
-    print(f"ðŸš› {len(sorted_vehicles)} vehicles available")
+    print(f"Ã°Å¸â€œâ€¹ {len(orders)} orders to assign")
+    print(f"Ã°Å¸Å¡â€º {len(sorted_vehicles)} vehicles available")
     
     colors = ['#ff3b4a', '#00d4ff', '#7c3aed', '#f59e0b', '#10b981', 
               '#ec4899', '#3b82f6', '#8b5cf6', '#f97316', '#14b8a6',
@@ -401,7 +401,7 @@ def time_first_algorithm(orders, vehicles):
         else:
             # Order cannot be delivered within acceptable lateness
             skipped_too_late += 1
-            print(f"   ⚠️  Skipped {order['id']} - would be too late (>{MAX_ACCEPTABLE_LATENESS} min)")
+            print(f"   âš ï¸  Skipped {order['id']} - would be too late (>{MAX_ACCEPTABLE_LATENESS} min)")
     
     # Add return distances and clean up empty routes
     final_routes = []
@@ -426,8 +426,8 @@ def time_first_algorithm(orders, vehicles):
     
     # Log summary
     if skipped_too_late > 0:
-        print(f"\n   ⚠️  Warning: {skipped_too_late} orders skipped (would exceed {MAX_ACCEPTABLE_LATENESS} min late)")
-        print(f"   💡 Consider adding more vehicles or adjusting time windows")
+        print(f"\n   âš ï¸  Warning: {skipped_too_late} orders skipped (would exceed {MAX_ACCEPTABLE_LATENESS} min late)")
+        print(f"   ðŸ’¡ Consider adding more vehicles or adjusting time windows")
     
     return final_routes, len(assigned_orders)
 
@@ -437,8 +437,8 @@ def calculate_algorithm_stats(routes, total_orders):
     """Calculate statistics for algorithm comparison"""
     total_distance = sum(r['totalDistance'] for r in routes)
     total_on_time = sum(r['onTimeDeliveries'] for r in routes)
-    total_late = sum(r['lateDeliveries'] for r in routes)
-    total_lateness = sum(r['totalLateness'] for r in routes)
+    total_late = sum(r.get('lateDeliveries', 0) for r in routes)
+    total_lateness = sum(r.get('totalLateness', 0) for r in routes)
     
     assigned_count = sum(len(r['orders']) for r in routes)
     avg_distance = total_distance / len(routes) if routes else 0
@@ -446,7 +446,7 @@ def calculate_algorithm_stats(routes, total_orders):
     
     # Calculate vehicle utilization
     total_capacity = sum(r['vehicle']['maxCapacity'] for r in routes)
-    total_weight = sum(r['totalWeight'] for r in routes)
+    total_weight = sum(r.get('totalWeight', 0) for r in routes)
     avg_utilization = (total_weight / total_capacity * 100) if total_capacity > 0 else 0
     
     return {
@@ -492,10 +492,10 @@ def optimize_routes():
             }), 400
         
         print(f"\n{'='*60}")
-        print(f"ðŸ“¦ Received {len(orders)} orders and {len(vehicles)} vehicles")
+        print(f"Ã°Å¸â€œÂ¦ Received {len(orders)} orders and {len(vehicles)} vehicles")
         
         # Run both algorithms
-        print(f"\nðŸš€ Running 2 optimization algorithms...")
+        print(f"\nÃ°Å¸Å¡â‚¬ Running 2 optimization algorithms...")
         
         # Algorithm 1: Distance-First
         routes_distance, assigned_distance = distance_first_algorithm(orders.copy(), vehicles.copy())
@@ -506,14 +506,14 @@ def optimize_routes():
         stats_time = calculate_algorithm_stats(routes_time, len(orders))
         
         print(f"\n{'='*60}")
-        print(f"ðŸ“Š COMPARISON RESULTS:")
-        print(f"\nðŸ”µ Distance-First:")
+        print(f"Ã°Å¸â€œÅ  COMPARISON RESULTS:")
+        print(f"\nÃ°Å¸â€Âµ Distance-First:")
         print(f"   Total Distance: {stats_distance['totalDistance']}km")
         print(f"   On-Time: {stats_distance['onTimeDeliveries']}/{stats_distance['assignedOrders']} ({stats_distance['onTimeDeliveries']/stats_distance['assignedOrders']*100:.1f}%)")
         print(f"   Vehicles: {stats_distance['vehiclesUsed']}")
         print(f"   Utilization: {stats_distance['avgUtilization']:.1f}%")
         
-        print(f"\nðŸŸ¢ Time-First:")
+        print(f"\nÃ°Å¸Å¸Â¢ Time-First:")
         print(f"   Total Distance: {stats_time['totalDistance']}km (+{stats_time['totalDistance']-stats_distance['totalDistance']:.1f}km)")
         print(f"   On-Time: {stats_time['onTimeDeliveries']}/{stats_time['assignedOrders']} ({stats_time['onTimeDeliveries']/stats_time['assignedOrders']*100:.1f}%)")
         print(f"   Vehicles: {stats_time['vehiclesUsed']}")
@@ -547,7 +547,7 @@ def optimize_routes():
         return jsonify(response), 200
         
     except Exception as e:
-        print(f"âŒ Error: {str(e)}")
+        print(f"Ã¢ÂÅ’ Error: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({
@@ -578,7 +578,7 @@ def recalculate_with_osrm():
             return jsonify({'error': 'No routes provided'}), 400
         
         print(f"\n{'='*60}")
-        print(f"ðŸ›£ï¸  Recalculating with OSRM for {len(routes)} routes...")
+        print(f"Ã°Å¸â€ºÂ£Ã¯Â¸Â  Recalculating with OSRM for {len(routes)} routes...")
         
         depot_lat, depot_lng = 46.0569, 14.5058
         total_requests = 0
@@ -664,14 +664,14 @@ def recalculate_with_osrm():
             route['distanceType'] = 'road'  # Mark as real road distance
             route['routeSegments'] = route_segments  # Add route geometry
             
-            print(f"   âœ… Total: {route['totalDistance']}km (real roads)")
+            print(f"   Ã¢Å“â€¦ Total: {route['totalDistance']}km (real roads)")
         
         # Calculate updated statistics
         total_orders = sum(len(r['orders']) for r in routes)
         stats = calculate_algorithm_stats(routes, total_orders)
         
         print(f"\n{'='*60}")
-        print(f"ðŸ›£ï¸  OSRM Recalculation Complete:")
+        print(f"Ã°Å¸â€ºÂ£Ã¯Â¸Â  OSRM Recalculation Complete:")
         print(f"   Total API calls: {total_requests}")
         print(f"   Failed calls: {failed_requests}")
         print(f"   Success rate: {(total_requests-failed_requests)/total_requests*100:.1f}%")
@@ -695,7 +695,7 @@ def recalculate_with_osrm():
         return jsonify(response), 200
         
     except Exception as e:
-        print(f"âŒ Error: {str(e)}")
+        print(f"Ã¢ÂÅ’ Error: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -765,9 +765,9 @@ def set_driver_routes():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    print("ðŸš€ Starting Route Optimization Backend")
-    print("ðŸ“ Running on http://localhost:5000")
-    print("ðŸ”— Frontend should connect to: http://localhost:5000/api/optimize")
-    print("âœ… 2 Algorithms: Distance-First & Time-First")
+    print("Ã°Å¸Å¡â‚¬ Starting Route Optimization Backend")
+    print("Ã°Å¸â€œÂ Running on http://localhost:5000")
+    print("Ã°Å¸â€â€” Frontend should connect to: http://localhost:5000/api/optimize")
+    print("Ã¢Å“â€¦ 2 Algorithms: Distance-First & Time-First")
     print("=" * 60)
     app.run(debug=True, port=5000)

@@ -157,7 +157,7 @@ const DriverApp = () => {
             justify-content: center; 
             font-weight: bold; 
             font-size: 18px;
-            border: 3px solid ${color}; 
+            border: ${isCompleted ? `0px solid ${color}` : `3px solid ${color}`};
             box-shadow: 0 3px 10px rgba(0,0,0,0.4);
             ${isCurrent ? 'animation: pulse 2s infinite;' : ''}
           ">${isCompleted ? '✓' : idx + 1}</div>`,
@@ -274,8 +274,7 @@ const DriverApp = () => {
               background: 'rgba(255, 255, 255, 0.95)',
               borderRadius: '20px',
               padding: '40px 20px',
-              textAlign: 'center',
-              boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
+              textAlign: 'center'
             }}>
               <Package size={48} color="#ccc" style={{ marginBottom: '20px' }} />
               <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>No Routes Available</h3>

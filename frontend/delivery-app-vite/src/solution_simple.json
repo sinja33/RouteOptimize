@@ -1,0 +1,3255 @@
+{
+  "routes": [
+    {
+      "vehicle_id": "V001",
+      "distance_km": 144.62,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "08:49",
+          "arrival_minutes": 529
+        },
+        {
+          "node": 199,
+          "location": "ORD0199",
+          "arrival_time": "09:18",
+          "arrival_minutes": 558
+        },
+        {
+          "node": 459,
+          "location": "ORD0459",
+          "arrival_time": "09:24",
+          "arrival_minutes": 564
+        },
+        {
+          "node": 346,
+          "location": "ORD0346",
+          "arrival_time": "09:34",
+          "arrival_minutes": 574
+        },
+        {
+          "node": 426,
+          "location": "ORD0426",
+          "arrival_time": "09:37",
+          "arrival_minutes": 577
+        },
+        {
+          "node": 419,
+          "location": "ORD0419",
+          "arrival_time": "09:47",
+          "arrival_minutes": 587
+        },
+        {
+          "node": 380,
+          "location": "ORD0380",
+          "arrival_time": "09:54",
+          "arrival_minutes": 594
+        },
+        {
+          "node": 492,
+          "location": "ORD0492",
+          "arrival_time": "10:01",
+          "arrival_minutes": 601
+        },
+        {
+          "node": 307,
+          "location": "ORD0307",
+          "arrival_time": "10:06",
+          "arrival_minutes": 606
+        },
+        {
+          "node": 225,
+          "location": "ORD0225",
+          "arrival_time": "10:11",
+          "arrival_minutes": 611
+        },
+        {
+          "node": 234,
+          "location": "ORD0234",
+          "arrival_time": "10:16",
+          "arrival_minutes": 616
+        },
+        {
+          "node": 333,
+          "location": "ORD0333",
+          "arrival_time": "10:19",
+          "arrival_minutes": 619
+        },
+        {
+          "node": 371,
+          "location": "ORD0371",
+          "arrival_time": "10:28",
+          "arrival_minutes": 628
+        },
+        {
+          "node": 454,
+          "location": "ORD0454",
+          "arrival_time": "10:33",
+          "arrival_minutes": 633
+        },
+        {
+          "node": 177,
+          "location": "ORD0177",
+          "arrival_time": "10:42",
+          "arrival_minutes": 642
+        },
+        {
+          "node": 159,
+          "location": "ORD0159",
+          "arrival_time": "10:49",
+          "arrival_minutes": 649
+        },
+        {
+          "node": 296,
+          "location": "ORD0296",
+          "arrival_time": "10:54",
+          "arrival_minutes": 654
+        },
+        {
+          "node": 152,
+          "location": "ORD0152",
+          "arrival_time": "10:57",
+          "arrival_minutes": 657
+        },
+        {
+          "node": 423,
+          "location": "ORD0423",
+          "arrival_time": "11:04",
+          "arrival_minutes": 664
+        },
+        {
+          "node": 428,
+          "location": "ORD0428",
+          "arrival_time": "11:09",
+          "arrival_minutes": 669
+        },
+        {
+          "node": 246,
+          "location": "ORD0246",
+          "arrival_time": "11:14",
+          "arrival_minutes": 674
+        },
+        {
+          "node": 248,
+          "location": "ORD0248",
+          "arrival_time": "11:20",
+          "arrival_minutes": 680
+        },
+        {
+          "node": 68,
+          "location": "ORD0068",
+          "arrival_time": "11:27",
+          "arrival_minutes": 687
+        },
+        {
+          "node": 398,
+          "location": "ORD0398",
+          "arrival_time": "11:31",
+          "arrival_minutes": 691
+        },
+        {
+          "node": 399,
+          "location": "ORD0399",
+          "arrival_time": "11:40",
+          "arrival_minutes": 700
+        },
+        {
+          "node": 247,
+          "location": "ORD0247",
+          "arrival_time": "11:45",
+          "arrival_minutes": 705
+        },
+        {
+          "node": 217,
+          "location": "ORD0217",
+          "arrival_time": "11:51",
+          "arrival_minutes": 711
+        },
+        {
+          "node": 282,
+          "location": "ORD0282",
+          "arrival_time": "11:56",
+          "arrival_minutes": 716
+        },
+        {
+          "node": 270,
+          "location": "ORD0270",
+          "arrival_time": "11:59",
+          "arrival_minutes": 719
+        },
+        {
+          "node": 349,
+          "location": "ORD0349",
+          "arrival_time": "12:06",
+          "arrival_minutes": 726
+        },
+        {
+          "node": 63,
+          "location": "ORD0063",
+          "arrival_time": "12:18",
+          "arrival_minutes": 738
+        },
+        {
+          "node": 481,
+          "location": "ORD0481",
+          "arrival_time": "12:22",
+          "arrival_minutes": 742
+        },
+        {
+          "node": 369,
+          "location": "ORD0369",
+          "arrival_time": "12:29",
+          "arrival_minutes": 749
+        },
+        {
+          "node": 207,
+          "location": "ORD0207",
+          "arrival_time": "12:38",
+          "arrival_minutes": 758
+        },
+        {
+          "node": 46,
+          "location": "ORD0046",
+          "arrival_time": "12:44",
+          "arrival_minutes": 764
+        },
+        {
+          "node": 102,
+          "location": "ORD0102",
+          "arrival_time": "12:47",
+          "arrival_minutes": 767
+        },
+        {
+          "node": 382,
+          "location": "ORD0382",
+          "arrival_time": "13:07",
+          "arrival_minutes": 787
+        },
+        {
+          "node": 483,
+          "location": "ORD0483",
+          "arrival_time": "13:11",
+          "arrival_minutes": 791
+        },
+        {
+          "node": 64,
+          "location": "ORD0064",
+          "arrival_time": "13:18",
+          "arrival_minutes": 798
+        },
+        {
+          "node": 229,
+          "location": "ORD0229",
+          "arrival_time": "13:26",
+          "arrival_minutes": 806
+        },
+        {
+          "node": 386,
+          "location": "ORD0386",
+          "arrival_time": "13:31",
+          "arrival_minutes": 811
+        },
+        {
+          "node": 432,
+          "location": "ORD0432",
+          "arrival_time": "13:34",
+          "arrival_minutes": 814
+        },
+        {
+          "node": 196,
+          "location": "ORD0196",
+          "arrival_time": "13:40",
+          "arrival_minutes": 820
+        },
+        {
+          "node": 13,
+          "location": "ORD0013",
+          "arrival_time": "13:44",
+          "arrival_minutes": 824
+        },
+        {
+          "node": 66,
+          "location": "ORD0066",
+          "arrival_time": "13:49",
+          "arrival_minutes": 829
+        },
+        {
+          "node": 416,
+          "location": "ORD0416",
+          "arrival_time": "14:03",
+          "arrival_minutes": 843
+        },
+        {
+          "node": 271,
+          "location": "ORD0271",
+          "arrival_time": "14:17",
+          "arrival_minutes": 857
+        },
+        {
+          "node": 387,
+          "location": "ORD0387",
+          "arrival_time": "14:23",
+          "arrival_minutes": 863
+        },
+        {
+          "node": 208,
+          "location": "ORD0208",
+          "arrival_time": "14:28",
+          "arrival_minutes": 868
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "14:49",
+          "arrival_minutes": 889
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V002",
+      "distance_km": 122.63,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "09:20",
+          "arrival_minutes": 560
+        },
+        {
+          "node": 224,
+          "location": "ORD0224",
+          "arrival_time": "09:48",
+          "arrival_minutes": 588
+        },
+        {
+          "node": 33,
+          "location": "ORD0033",
+          "arrival_time": "09:53",
+          "arrival_minutes": 593
+        },
+        {
+          "node": 494,
+          "location": "ORD0494",
+          "arrival_time": "09:58",
+          "arrival_minutes": 598
+        },
+        {
+          "node": 284,
+          "location": "ORD0284",
+          "arrival_time": "10:03",
+          "arrival_minutes": 603
+        },
+        {
+          "node": 451,
+          "location": "ORD0451",
+          "arrival_time": "10:08",
+          "arrival_minutes": 608
+        },
+        {
+          "node": 113,
+          "location": "ORD0113",
+          "arrival_time": "10:15",
+          "arrival_minutes": 615
+        },
+        {
+          "node": 38,
+          "location": "ORD0038",
+          "arrival_time": "10:22",
+          "arrival_minutes": 622
+        },
+        {
+          "node": 303,
+          "location": "ORD0303",
+          "arrival_time": "10:25",
+          "arrival_minutes": 625
+        },
+        {
+          "node": 431,
+          "location": "ORD0431",
+          "arrival_time": "10:31",
+          "arrival_minutes": 631
+        },
+        {
+          "node": 116,
+          "location": "ORD0116",
+          "arrival_time": "10:37",
+          "arrival_minutes": 637
+        },
+        {
+          "node": 418,
+          "location": "ORD0418",
+          "arrival_time": "10:43",
+          "arrival_minutes": 643
+        },
+        {
+          "node": 255,
+          "location": "ORD0255",
+          "arrival_time": "10:49",
+          "arrival_minutes": 649
+        },
+        {
+          "node": 368,
+          "location": "ORD0368",
+          "arrival_time": "10:55",
+          "arrival_minutes": 655
+        },
+        {
+          "node": 179,
+          "location": "ORD0179",
+          "arrival_time": "11:02",
+          "arrival_minutes": 662
+        },
+        {
+          "node": 443,
+          "location": "ORD0443",
+          "arrival_time": "11:07",
+          "arrival_minutes": 667
+        },
+        {
+          "node": 122,
+          "location": "ORD0122",
+          "arrival_time": "11:13",
+          "arrival_minutes": 673
+        },
+        {
+          "node": 124,
+          "location": "ORD0124",
+          "arrival_time": "11:18",
+          "arrival_minutes": 678
+        },
+        {
+          "node": 173,
+          "location": "ORD0173",
+          "arrival_time": "11:23",
+          "arrival_minutes": 683
+        },
+        {
+          "node": 359,
+          "location": "ORD0359",
+          "arrival_time": "11:29",
+          "arrival_minutes": 689
+        },
+        {
+          "node": 337,
+          "location": "ORD0337",
+          "arrival_time": "11:39",
+          "arrival_minutes": 699
+        },
+        {
+          "node": 121,
+          "location": "ORD0121",
+          "arrival_time": "11:44",
+          "arrival_minutes": 704
+        },
+        {
+          "node": 447,
+          "location": "ORD0447",
+          "arrival_time": "11:56",
+          "arrival_minutes": 716
+        },
+        {
+          "node": 95,
+          "location": "ORD0095",
+          "arrival_time": "12:06",
+          "arrival_minutes": 726
+        },
+        {
+          "node": 336,
+          "location": "ORD0336",
+          "arrival_time": "12:14",
+          "arrival_minutes": 734
+        },
+        {
+          "node": 348,
+          "location": "ORD0348",
+          "arrival_time": "12:20",
+          "arrival_minutes": 740
+        },
+        {
+          "node": 227,
+          "location": "ORD0227",
+          "arrival_time": "12:27",
+          "arrival_minutes": 747
+        },
+        {
+          "node": 269,
+          "location": "ORD0269",
+          "arrival_time": "12:30",
+          "arrival_minutes": 750
+        },
+        {
+          "node": 96,
+          "location": "ORD0096",
+          "arrival_time": "12:35",
+          "arrival_minutes": 755
+        },
+        {
+          "node": 10,
+          "location": "ORD0010",
+          "arrival_time": "12:39",
+          "arrival_minutes": 759
+        },
+        {
+          "node": 202,
+          "location": "ORD0202",
+          "arrival_time": "12:45",
+          "arrival_minutes": 765
+        },
+        {
+          "node": 201,
+          "location": "ORD0201",
+          "arrival_time": "12:52",
+          "arrival_minutes": 772
+        },
+        {
+          "node": 34,
+          "location": "ORD0034",
+          "arrival_time": "12:56",
+          "arrival_minutes": 776
+        },
+        {
+          "node": 21,
+          "location": "ORD0021",
+          "arrival_time": "13:01",
+          "arrival_minutes": 781
+        },
+        {
+          "node": 226,
+          "location": "ORD0226",
+          "arrival_time": "13:10",
+          "arrival_minutes": 790
+        },
+        {
+          "node": 482,
+          "location": "ORD0482",
+          "arrival_time": "13:18",
+          "arrival_minutes": 798
+        },
+        {
+          "node": 1,
+          "location": "ORD0001",
+          "arrival_time": "13:22",
+          "arrival_minutes": 802
+        },
+        {
+          "node": 61,
+          "location": "ORD0061",
+          "arrival_time": "13:33",
+          "arrival_minutes": 813
+        },
+        {
+          "node": 58,
+          "location": "ORD0058",
+          "arrival_time": "13:36",
+          "arrival_minutes": 816
+        },
+        {
+          "node": 361,
+          "location": "ORD0361",
+          "arrival_time": "13:39",
+          "arrival_minutes": 819
+        },
+        {
+          "node": 82,
+          "location": "ORD0082",
+          "arrival_time": "13:44",
+          "arrival_minutes": 824
+        },
+        {
+          "node": 272,
+          "location": "ORD0272",
+          "arrival_time": "13:50",
+          "arrival_minutes": 830
+        },
+        {
+          "node": 197,
+          "location": "ORD0197",
+          "arrival_time": "13:55",
+          "arrival_minutes": 835
+        },
+        {
+          "node": 211,
+          "location": "ORD0211",
+          "arrival_time": "14:02",
+          "arrival_minutes": 842
+        },
+        {
+          "node": 187,
+          "location": "ORD0187",
+          "arrival_time": "14:13",
+          "arrival_minutes": 853
+        },
+        {
+          "node": 499,
+          "location": "ORD0499",
+          "arrival_time": "14:18",
+          "arrival_minutes": 858
+        },
+        {
+          "node": 430,
+          "location": "ORD0430",
+          "arrival_time": "14:23",
+          "arrival_minutes": 863
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "14:44",
+          "arrival_minutes": 884
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V003",
+      "distance_km": 137.98,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "10:21",
+          "arrival_minutes": 621
+        },
+        {
+          "node": 30,
+          "location": "ORD0030",
+          "arrival_time": "10:52",
+          "arrival_minutes": 652
+        },
+        {
+          "node": 306,
+          "location": "ORD0306",
+          "arrival_time": "10:56",
+          "arrival_minutes": 656
+        },
+        {
+          "node": 3,
+          "location": "ORD0003",
+          "arrival_time": "11:02",
+          "arrival_minutes": 662
+        },
+        {
+          "node": 110,
+          "location": "ORD0110",
+          "arrival_time": "11:09",
+          "arrival_minutes": 669
+        },
+        {
+          "node": 425,
+          "location": "ORD0425",
+          "arrival_time": "11:13",
+          "arrival_minutes": 673
+        },
+        {
+          "node": 374,
+          "location": "ORD0374",
+          "arrival_time": "11:16",
+          "arrival_minutes": 676
+        },
+        {
+          "node": 20,
+          "location": "ORD0020",
+          "arrival_time": "11:20",
+          "arrival_minutes": 680
+        },
+        {
+          "node": 139,
+          "location": "ORD0139",
+          "arrival_time": "11:26",
+          "arrival_minutes": 686
+        },
+        {
+          "node": 136,
+          "location": "ORD0136",
+          "arrival_time": "11:31",
+          "arrival_minutes": 691
+        },
+        {
+          "node": 389,
+          "location": "ORD0389",
+          "arrival_time": "11:39",
+          "arrival_minutes": 699
+        },
+        {
+          "node": 69,
+          "location": "ORD0069",
+          "arrival_time": "11:42",
+          "arrival_minutes": 702
+        },
+        {
+          "node": 372,
+          "location": "ORD0372",
+          "arrival_time": "11:47",
+          "arrival_minutes": 707
+        },
+        {
+          "node": 23,
+          "location": "ORD0023",
+          "arrival_time": "11:50",
+          "arrival_minutes": 710
+        },
+        {
+          "node": 129,
+          "location": "ORD0129",
+          "arrival_time": "11:54",
+          "arrival_minutes": 714
+        },
+        {
+          "node": 4,
+          "location": "ORD0004",
+          "arrival_time": "12:04",
+          "arrival_minutes": 724
+        },
+        {
+          "node": 330,
+          "location": "ORD0330",
+          "arrival_time": "12:10",
+          "arrival_minutes": 730
+        },
+        {
+          "node": 383,
+          "location": "ORD0383",
+          "arrival_time": "12:15",
+          "arrival_minutes": 735
+        },
+        {
+          "node": 446,
+          "location": "ORD0446",
+          "arrival_time": "12:19",
+          "arrival_minutes": 739
+        },
+        {
+          "node": 85,
+          "location": "ORD0085",
+          "arrival_time": "12:31",
+          "arrival_minutes": 751
+        },
+        {
+          "node": 162,
+          "location": "ORD0162",
+          "arrival_time": "12:35",
+          "arrival_minutes": 755
+        },
+        {
+          "node": 45,
+          "location": "ORD0045",
+          "arrival_time": "12:40",
+          "arrival_minutes": 760
+        },
+        {
+          "node": 161,
+          "location": "ORD0161",
+          "arrival_time": "12:44",
+          "arrival_minutes": 764
+        },
+        {
+          "node": 17,
+          "location": "ORD0017",
+          "arrival_time": "12:53",
+          "arrival_minutes": 773
+        },
+        {
+          "node": 440,
+          "location": "ORD0440",
+          "arrival_time": "12:58",
+          "arrival_minutes": 778
+        },
+        {
+          "node": 407,
+          "location": "ORD0407",
+          "arrival_time": "13:04",
+          "arrival_minutes": 784
+        },
+        {
+          "node": 313,
+          "location": "ORD0313",
+          "arrival_time": "13:10",
+          "arrival_minutes": 790
+        },
+        {
+          "node": 475,
+          "location": "ORD0475",
+          "arrival_time": "13:15",
+          "arrival_minutes": 795
+        },
+        {
+          "node": 54,
+          "location": "ORD0054",
+          "arrival_time": "13:21",
+          "arrival_minutes": 801
+        },
+        {
+          "node": 417,
+          "location": "ORD0417",
+          "arrival_time": "13:30",
+          "arrival_minutes": 810
+        },
+        {
+          "node": 6,
+          "location": "ORD0006",
+          "arrival_time": "13:34",
+          "arrival_minutes": 814
+        },
+        {
+          "node": 109,
+          "location": "ORD0109",
+          "arrival_time": "13:41",
+          "arrival_minutes": 821
+        },
+        {
+          "node": 257,
+          "location": "ORD0257",
+          "arrival_time": "13:48",
+          "arrival_minutes": 828
+        },
+        {
+          "node": 103,
+          "location": "ORD0103",
+          "arrival_time": "13:52",
+          "arrival_minutes": 832
+        },
+        {
+          "node": 168,
+          "location": "ORD0168",
+          "arrival_time": "13:58",
+          "arrival_minutes": 838
+        },
+        {
+          "node": 465,
+          "location": "ORD0465",
+          "arrival_time": "14:04",
+          "arrival_minutes": 844
+        },
+        {
+          "node": 421,
+          "location": "ORD0421",
+          "arrival_time": "14:09",
+          "arrival_minutes": 849
+        },
+        {
+          "node": 106,
+          "location": "ORD0106",
+          "arrival_time": "14:15",
+          "arrival_minutes": 855
+        },
+        {
+          "node": 180,
+          "location": "ORD0180",
+          "arrival_time": "14:20",
+          "arrival_minutes": 860
+        },
+        {
+          "node": 263,
+          "location": "ORD0263",
+          "arrival_time": "14:24",
+          "arrival_minutes": 864
+        },
+        {
+          "node": 408,
+          "location": "ORD0408",
+          "arrival_time": "14:28",
+          "arrival_minutes": 868
+        },
+        {
+          "node": 304,
+          "location": "ORD0304",
+          "arrival_time": "14:41",
+          "arrival_minutes": 881
+        },
+        {
+          "node": 135,
+          "location": "ORD0135",
+          "arrival_time": "14:46",
+          "arrival_minutes": 886
+        },
+        {
+          "node": 166,
+          "location": "ORD0166",
+          "arrival_time": "14:51",
+          "arrival_minutes": 891
+        },
+        {
+          "node": 183,
+          "location": "ORD0183",
+          "arrival_time": "14:58",
+          "arrival_minutes": 898
+        },
+        {
+          "node": 420,
+          "location": "ORD0420",
+          "arrival_time": "15:02",
+          "arrival_minutes": 902
+        },
+        {
+          "node": 133,
+          "location": "ORD0133",
+          "arrival_time": "15:09",
+          "arrival_minutes": 909
+        },
+        {
+          "node": 97,
+          "location": "ORD0097",
+          "arrival_time": "15:13",
+          "arrival_minutes": 913
+        },
+        {
+          "node": 260,
+          "location": "ORD0260",
+          "arrival_time": "15:21",
+          "arrival_minutes": 921
+        },
+        {
+          "node": 493,
+          "location": "ORD0493",
+          "arrival_time": "15:24",
+          "arrival_minutes": 924
+        },
+        {
+          "node": 352,
+          "location": "ORD0352",
+          "arrival_time": "15:27",
+          "arrival_minutes": 927
+        },
+        {
+          "node": 463,
+          "location": "ORD0463",
+          "arrival_time": "15:40",
+          "arrival_minutes": 940
+        },
+        {
+          "node": 184,
+          "location": "ORD0184",
+          "arrival_time": "15:49",
+          "arrival_minutes": 949
+        },
+        {
+          "node": 455,
+          "location": "ORD0455",
+          "arrival_time": "15:55",
+          "arrival_minutes": 955
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "16:17",
+          "arrival_minutes": 977
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V005",
+      "distance_km": 143.07,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "13:33",
+          "arrival_minutes": 813
+        },
+        {
+          "node": 388,
+          "location": "ORD0388",
+          "arrival_time": "14:00",
+          "arrival_minutes": 840
+        },
+        {
+          "node": 435,
+          "location": "ORD0435",
+          "arrival_time": "14:04",
+          "arrival_minutes": 844
+        },
+        {
+          "node": 127,
+          "location": "ORD0127",
+          "arrival_time": "14:10",
+          "arrival_minutes": 850
+        },
+        {
+          "node": 128,
+          "location": "ORD0128",
+          "arrival_time": "14:15",
+          "arrival_minutes": 855
+        },
+        {
+          "node": 497,
+          "location": "ORD0497",
+          "arrival_time": "14:23",
+          "arrival_minutes": 863
+        },
+        {
+          "node": 290,
+          "location": "ORD0290",
+          "arrival_time": "14:27",
+          "arrival_minutes": 867
+        },
+        {
+          "node": 163,
+          "location": "ORD0163",
+          "arrival_time": "14:31",
+          "arrival_minutes": 871
+        },
+        {
+          "node": 479,
+          "location": "ORD0479",
+          "arrival_time": "14:39",
+          "arrival_minutes": 879
+        },
+        {
+          "node": 256,
+          "location": "ORD0256",
+          "arrival_time": "14:44",
+          "arrival_minutes": 884
+        },
+        {
+          "node": 27,
+          "location": "ORD0027",
+          "arrival_time": "14:49",
+          "arrival_minutes": 889
+        },
+        {
+          "node": 429,
+          "location": "ORD0429",
+          "arrival_time": "14:56",
+          "arrival_minutes": 896
+        },
+        {
+          "node": 281,
+          "location": "ORD0281",
+          "arrival_time": "15:03",
+          "arrival_minutes": 903
+        },
+        {
+          "node": 140,
+          "location": "ORD0140",
+          "arrival_time": "15:10",
+          "arrival_minutes": 910
+        },
+        {
+          "node": 233,
+          "location": "ORD0233",
+          "arrival_time": "15:15",
+          "arrival_minutes": 915
+        },
+        {
+          "node": 37,
+          "location": "ORD0037",
+          "arrival_time": "15:19",
+          "arrival_minutes": 919
+        },
+        {
+          "node": 355,
+          "location": "ORD0355",
+          "arrival_time": "15:30",
+          "arrival_minutes": 930
+        },
+        {
+          "node": 339,
+          "location": "ORD0339",
+          "arrival_time": "15:36",
+          "arrival_minutes": 936
+        },
+        {
+          "node": 142,
+          "location": "ORD0142",
+          "arrival_time": "15:46",
+          "arrival_minutes": 946
+        },
+        {
+          "node": 60,
+          "location": "ORD0060",
+          "arrival_time": "15:51",
+          "arrival_minutes": 951
+        },
+        {
+          "node": 104,
+          "location": "ORD0104",
+          "arrival_time": "15:55",
+          "arrival_minutes": 955
+        },
+        {
+          "node": 154,
+          "location": "ORD0154",
+          "arrival_time": "16:00",
+          "arrival_minutes": 960
+        },
+        {
+          "node": 393,
+          "location": "ORD0393",
+          "arrival_time": "16:05",
+          "arrival_minutes": 965
+        },
+        {
+          "node": 277,
+          "location": "ORD0277",
+          "arrival_time": "16:10",
+          "arrival_minutes": 970
+        },
+        {
+          "node": 326,
+          "location": "ORD0326",
+          "arrival_time": "16:16",
+          "arrival_minutes": 976
+        },
+        {
+          "node": 477,
+          "location": "ORD0477",
+          "arrival_time": "16:21",
+          "arrival_minutes": 981
+        },
+        {
+          "node": 427,
+          "location": "ORD0427",
+          "arrival_time": "16:33",
+          "arrival_minutes": 993
+        },
+        {
+          "node": 471,
+          "location": "ORD0471",
+          "arrival_time": "16:38",
+          "arrival_minutes": 998
+        },
+        {
+          "node": 351,
+          "location": "ORD0351",
+          "arrival_time": "16:42",
+          "arrival_minutes": 1002
+        },
+        {
+          "node": 267,
+          "location": "ORD0267",
+          "arrival_time": "16:46",
+          "arrival_minutes": 1006
+        },
+        {
+          "node": 29,
+          "location": "ORD0029",
+          "arrival_time": "16:50",
+          "arrival_minutes": 1010
+        },
+        {
+          "node": 89,
+          "location": "ORD0089",
+          "arrival_time": "16:55",
+          "arrival_minutes": 1015
+        },
+        {
+          "node": 100,
+          "location": "ORD0100",
+          "arrival_time": "16:59",
+          "arrival_minutes": 1019
+        },
+        {
+          "node": 189,
+          "location": "ORD0189",
+          "arrival_time": "17:04",
+          "arrival_minutes": 1024
+        },
+        {
+          "node": 488,
+          "location": "ORD0488",
+          "arrival_time": "17:09",
+          "arrival_minutes": 1029
+        },
+        {
+          "node": 31,
+          "location": "ORD0031",
+          "arrival_time": "17:13",
+          "arrival_minutes": 1033
+        },
+        {
+          "node": 469,
+          "location": "ORD0469",
+          "arrival_time": "17:26",
+          "arrival_minutes": 1046
+        },
+        {
+          "node": 470,
+          "location": "ORD0470",
+          "arrival_time": "17:31",
+          "arrival_minutes": 1051
+        },
+        {
+          "node": 363,
+          "location": "ORD0363",
+          "arrival_time": "17:37",
+          "arrival_minutes": 1057
+        },
+        {
+          "node": 462,
+          "location": "ORD0462",
+          "arrival_time": "17:50",
+          "arrival_minutes": 1070
+        },
+        {
+          "node": 111,
+          "location": "ORD0111",
+          "arrival_time": "17:53",
+          "arrival_minutes": 1073
+        },
+        {
+          "node": 496,
+          "location": "ORD0496",
+          "arrival_time": "18:08",
+          "arrival_minutes": 1088
+        },
+        {
+          "node": 324,
+          "location": "ORD0324",
+          "arrival_time": "18:12",
+          "arrival_minutes": 1092
+        },
+        {
+          "node": 49,
+          "location": "ORD0049",
+          "arrival_time": "18:20",
+          "arrival_minutes": 1100
+        },
+        {
+          "node": 445,
+          "location": "ORD0445",
+          "arrival_time": "18:26",
+          "arrival_minutes": 1106
+        },
+        {
+          "node": 101,
+          "location": "ORD0101",
+          "arrival_time": "18:31",
+          "arrival_minutes": 1111
+        },
+        {
+          "node": 138,
+          "location": "ORD0138",
+          "arrival_time": "18:44",
+          "arrival_minutes": 1124
+        },
+        {
+          "node": 405,
+          "location": "ORD0405",
+          "arrival_time": "18:56",
+          "arrival_minutes": 1136
+        },
+        {
+          "node": 52,
+          "location": "ORD0052",
+          "arrival_time": "19:08",
+          "arrival_minutes": 1148
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "19:30",
+          "arrival_minutes": 1170
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V006",
+      "distance_km": 131.39,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "11:06",
+          "arrival_minutes": 666
+        },
+        {
+          "node": 24,
+          "location": "ORD0024",
+          "arrival_time": "11:25",
+          "arrival_minutes": 685
+        },
+        {
+          "node": 79,
+          "location": "ORD0079",
+          "arrival_time": "11:30",
+          "arrival_minutes": 690
+        },
+        {
+          "node": 44,
+          "location": "ORD0044",
+          "arrival_time": "11:37",
+          "arrival_minutes": 697
+        },
+        {
+          "node": 444,
+          "location": "ORD0444",
+          "arrival_time": "11:54",
+          "arrival_minutes": 714
+        },
+        {
+          "node": 84,
+          "location": "ORD0084",
+          "arrival_time": "12:01",
+          "arrival_minutes": 721
+        },
+        {
+          "node": 353,
+          "location": "ORD0353",
+          "arrival_time": "12:08",
+          "arrival_minutes": 728
+        },
+        {
+          "node": 40,
+          "location": "ORD0040",
+          "arrival_time": "12:12",
+          "arrival_minutes": 732
+        },
+        {
+          "node": 392,
+          "location": "ORD0392",
+          "arrival_time": "12:17",
+          "arrival_minutes": 737
+        },
+        {
+          "node": 404,
+          "location": "ORD0404",
+          "arrival_time": "12:22",
+          "arrival_minutes": 742
+        },
+        {
+          "node": 283,
+          "location": "ORD0283",
+          "arrival_time": "12:27",
+          "arrival_minutes": 747
+        },
+        {
+          "node": 57,
+          "location": "ORD0057",
+          "arrival_time": "12:35",
+          "arrival_minutes": 755
+        },
+        {
+          "node": 186,
+          "location": "ORD0186",
+          "arrival_time": "12:40",
+          "arrival_minutes": 760
+        },
+        {
+          "node": 107,
+          "location": "ORD0107",
+          "arrival_time": "12:47",
+          "arrival_minutes": 767
+        },
+        {
+          "node": 453,
+          "location": "ORD0453",
+          "arrival_time": "12:51",
+          "arrival_minutes": 771
+        },
+        {
+          "node": 9,
+          "location": "ORD0009",
+          "arrival_time": "12:56",
+          "arrival_minutes": 776
+        },
+        {
+          "node": 172,
+          "location": "ORD0172",
+          "arrival_time": "13:00",
+          "arrival_minutes": 780
+        },
+        {
+          "node": 176,
+          "location": "ORD0176",
+          "arrival_time": "13:06",
+          "arrival_minutes": 786
+        },
+        {
+          "node": 273,
+          "location": "ORD0273",
+          "arrival_time": "13:11",
+          "arrival_minutes": 791
+        },
+        {
+          "node": 18,
+          "location": "ORD0018",
+          "arrival_time": "13:15",
+          "arrival_minutes": 795
+        },
+        {
+          "node": 325,
+          "location": "ORD0325",
+          "arrival_time": "13:22",
+          "arrival_minutes": 802
+        },
+        {
+          "node": 401,
+          "location": "ORD0401",
+          "arrival_time": "13:27",
+          "arrival_minutes": 807
+        },
+        {
+          "node": 90,
+          "location": "ORD0090",
+          "arrival_time": "13:32",
+          "arrival_minutes": 812
+        },
+        {
+          "node": 261,
+          "location": "ORD0261",
+          "arrival_time": "13:37",
+          "arrival_minutes": 817
+        },
+        {
+          "node": 252,
+          "location": "ORD0252",
+          "arrival_time": "13:42",
+          "arrival_minutes": 822
+        },
+        {
+          "node": 316,
+          "location": "ORD0316",
+          "arrival_time": "13:46",
+          "arrival_minutes": 826
+        },
+        {
+          "node": 98,
+          "location": "ORD0098",
+          "arrival_time": "13:51",
+          "arrival_minutes": 831
+        },
+        {
+          "node": 474,
+          "location": "ORD0474",
+          "arrival_time": "13:56",
+          "arrival_minutes": 836
+        },
+        {
+          "node": 262,
+          "location": "ORD0262",
+          "arrival_time": "14:02",
+          "arrival_minutes": 842
+        },
+        {
+          "node": 254,
+          "location": "ORD0254",
+          "arrival_time": "14:07",
+          "arrival_minutes": 847
+        },
+        {
+          "node": 91,
+          "location": "ORD0091",
+          "arrival_time": "14:13",
+          "arrival_minutes": 853
+        },
+        {
+          "node": 26,
+          "location": "ORD0026",
+          "arrival_time": "14:19",
+          "arrival_minutes": 859
+        },
+        {
+          "node": 264,
+          "location": "ORD0264",
+          "arrival_time": "14:27",
+          "arrival_minutes": 867
+        },
+        {
+          "node": 456,
+          "location": "ORD0456",
+          "arrival_time": "14:33",
+          "arrival_minutes": 873
+        },
+        {
+          "node": 375,
+          "location": "ORD0375",
+          "arrival_time": "14:40",
+          "arrival_minutes": 880
+        },
+        {
+          "node": 350,
+          "location": "ORD0350",
+          "arrival_time": "14:44",
+          "arrival_minutes": 884
+        },
+        {
+          "node": 171,
+          "location": "ORD0171",
+          "arrival_time": "14:52",
+          "arrival_minutes": 892
+        },
+        {
+          "node": 71,
+          "location": "ORD0071",
+          "arrival_time": "14:59",
+          "arrival_minutes": 899
+        },
+        {
+          "node": 357,
+          "location": "ORD0357",
+          "arrival_time": "15:04",
+          "arrival_minutes": 904
+        },
+        {
+          "node": 460,
+          "location": "ORD0460",
+          "arrival_time": "15:15",
+          "arrival_minutes": 915
+        },
+        {
+          "node": 323,
+          "location": "ORD0323",
+          "arrival_time": "15:21",
+          "arrival_minutes": 921
+        },
+        {
+          "node": 42,
+          "location": "ORD0042",
+          "arrival_time": "15:27",
+          "arrival_minutes": 927
+        },
+        {
+          "node": 164,
+          "location": "ORD0164",
+          "arrival_time": "15:34",
+          "arrival_minutes": 934
+        },
+        {
+          "node": 125,
+          "location": "ORD0125",
+          "arrival_time": "15:39",
+          "arrival_minutes": 939
+        },
+        {
+          "node": 178,
+          "location": "ORD0178",
+          "arrival_time": "15:44",
+          "arrival_minutes": 944
+        },
+        {
+          "node": 298,
+          "location": "ORD0298",
+          "arrival_time": "15:52",
+          "arrival_minutes": 952
+        },
+        {
+          "node": 2,
+          "location": "ORD0002",
+          "arrival_time": "15:57",
+          "arrival_minutes": 957
+        },
+        {
+          "node": 244,
+          "location": "ORD0244",
+          "arrival_time": "16:05",
+          "arrival_minutes": 965
+        },
+        {
+          "node": 286,
+          "location": "ORD0286",
+          "arrival_time": "16:11",
+          "arrival_minutes": 971
+        },
+        {
+          "node": 41,
+          "location": "ORD0041",
+          "arrival_time": "16:20",
+          "arrival_minutes": 980
+        },
+        {
+          "node": 155,
+          "location": "ORD0155",
+          "arrival_time": "16:24",
+          "arrival_minutes": 984
+        },
+        {
+          "node": 149,
+          "location": "ORD0149",
+          "arrival_time": "16:27",
+          "arrival_minutes": 987
+        },
+        {
+          "node": 198,
+          "location": "ORD0198",
+          "arrival_time": "16:34",
+          "arrival_minutes": 994
+        },
+        {
+          "node": 92,
+          "location": "ORD0092",
+          "arrival_time": "16:41",
+          "arrival_minutes": 1001
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "17:06",
+          "arrival_minutes": 1026
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V008",
+      "distance_km": 108.64,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "10:09",
+          "arrival_minutes": 609
+        },
+        {
+          "node": 193,
+          "location": "ORD0193",
+          "arrival_time": "10:44",
+          "arrival_minutes": 644
+        },
+        {
+          "node": 490,
+          "location": "ORD0490",
+          "arrival_time": "11:14",
+          "arrival_minutes": 674
+        },
+        {
+          "node": 94,
+          "location": "ORD0094",
+          "arrival_time": "11:29",
+          "arrival_minutes": 689
+        },
+        {
+          "node": 236,
+          "location": "ORD0236",
+          "arrival_time": "11:53",
+          "arrival_minutes": 713
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "12:32",
+          "arrival_minutes": 752
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V009",
+      "distance_km": 346.08,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "09:11",
+          "arrival_minutes": 551
+        },
+        {
+          "node": 441,
+          "location": "ORD0441",
+          "arrival_time": "09:45",
+          "arrival_minutes": 585
+        },
+        {
+          "node": 112,
+          "location": "ORD0112",
+          "arrival_time": "09:57",
+          "arrival_minutes": 597
+        },
+        {
+          "node": 253,
+          "location": "ORD0253",
+          "arrival_time": "10:02",
+          "arrival_minutes": 602
+        },
+        {
+          "node": 487,
+          "location": "ORD0487",
+          "arrival_time": "10:07",
+          "arrival_minutes": 607
+        },
+        {
+          "node": 145,
+          "location": "ORD0145",
+          "arrival_time": "10:11",
+          "arrival_minutes": 611
+        },
+        {
+          "node": 358,
+          "location": "ORD0358",
+          "arrival_time": "10:18",
+          "arrival_minutes": 618
+        },
+        {
+          "node": 367,
+          "location": "ORD0367",
+          "arrival_time": "11:48",
+          "arrival_minutes": 708
+        },
+        {
+          "node": 275,
+          "location": "ORD0275",
+          "arrival_time": "13:25",
+          "arrival_minutes": 805
+        },
+        {
+          "node": 342,
+          "location": "ORD0342",
+          "arrival_time": "13:29",
+          "arrival_minutes": 809
+        },
+        {
+          "node": 409,
+          "location": "ORD0409",
+          "arrival_time": "13:36",
+          "arrival_minutes": 816
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "14:01",
+          "arrival_minutes": 841
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V010",
+      "distance_km": 164.33,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "14:56",
+          "arrival_minutes": 896
+        },
+        {
+          "node": 265,
+          "location": "ORD0265",
+          "arrival_time": "15:16",
+          "arrival_minutes": 916
+        },
+        {
+          "node": 362,
+          "location": "ORD0362",
+          "arrival_time": "15:24",
+          "arrival_minutes": 924
+        },
+        {
+          "node": 144,
+          "location": "ORD0144",
+          "arrival_time": "15:39",
+          "arrival_minutes": 939
+        },
+        {
+          "node": 458,
+          "location": "ORD0458",
+          "arrival_time": "15:45",
+          "arrival_minutes": 945
+        },
+        {
+          "node": 115,
+          "location": "ORD0115",
+          "arrival_time": "15:49",
+          "arrival_minutes": 949
+        },
+        {
+          "node": 308,
+          "location": "ORD0308",
+          "arrival_time": "16:17",
+          "arrival_minutes": 977
+        },
+        {
+          "node": 340,
+          "location": "ORD0340",
+          "arrival_time": "16:43",
+          "arrival_minutes": 1003
+        },
+        {
+          "node": 400,
+          "location": "ORD0400",
+          "arrival_time": "16:51",
+          "arrival_minutes": 1011
+        },
+        {
+          "node": 327,
+          "location": "ORD0327",
+          "arrival_time": "16:59",
+          "arrival_minutes": 1019
+        },
+        {
+          "node": 218,
+          "location": "ORD0218",
+          "arrival_time": "17:10",
+          "arrival_minutes": 1030
+        },
+        {
+          "node": 51,
+          "location": "ORD0051",
+          "arrival_time": "17:14",
+          "arrival_minutes": 1034
+        },
+        {
+          "node": 53,
+          "location": "ORD0053",
+          "arrival_time": "17:18",
+          "arrival_minutes": 1038
+        },
+        {
+          "node": 72,
+          "location": "ORD0072",
+          "arrival_time": "17:30",
+          "arrival_minutes": 1050
+        },
+        {
+          "node": 213,
+          "location": "ORD0213",
+          "arrival_time": "17:34",
+          "arrival_minutes": 1054
+        },
+        {
+          "node": 289,
+          "location": "ORD0289",
+          "arrival_time": "17:41",
+          "arrival_minutes": 1061
+        },
+        {
+          "node": 287,
+          "location": "ORD0287",
+          "arrival_time": "17:49",
+          "arrival_minutes": 1069
+        },
+        {
+          "node": 402,
+          "location": "ORD0402",
+          "arrival_time": "17:53",
+          "arrival_minutes": 1073
+        },
+        {
+          "node": 461,
+          "location": "ORD0461",
+          "arrival_time": "17:59",
+          "arrival_minutes": 1079
+        },
+        {
+          "node": 478,
+          "location": "ORD0478",
+          "arrival_time": "18:03",
+          "arrival_minutes": 1083
+        },
+        {
+          "node": 12,
+          "location": "ORD0012",
+          "arrival_time": "18:16",
+          "arrival_minutes": 1096
+        },
+        {
+          "node": 331,
+          "location": "ORD0331",
+          "arrival_time": "18:20",
+          "arrival_minutes": 1100
+        },
+        {
+          "node": 235,
+          "location": "ORD0235",
+          "arrival_time": "18:27",
+          "arrival_minutes": 1107
+        },
+        {
+          "node": 182,
+          "location": "ORD0182",
+          "arrival_time": "18:36",
+          "arrival_minutes": 1116
+        },
+        {
+          "node": 295,
+          "location": "ORD0295",
+          "arrival_time": "18:40",
+          "arrival_minutes": 1120
+        },
+        {
+          "node": 86,
+          "location": "ORD0086",
+          "arrival_time": "18:43",
+          "arrival_minutes": 1123
+        },
+        {
+          "node": 240,
+          "location": "ORD0240",
+          "arrival_time": "18:48",
+          "arrival_minutes": 1128
+        },
+        {
+          "node": 19,
+          "location": "ORD0019",
+          "arrival_time": "18:53",
+          "arrival_minutes": 1133
+        },
+        {
+          "node": 147,
+          "location": "ORD0147",
+          "arrival_time": "18:57",
+          "arrival_minutes": 1137
+        },
+        {
+          "node": 48,
+          "location": "ORD0048",
+          "arrival_time": "19:05",
+          "arrival_minutes": 1145
+        },
+        {
+          "node": 314,
+          "location": "ORD0314",
+          "arrival_time": "19:11",
+          "arrival_minutes": 1151
+        },
+        {
+          "node": 288,
+          "location": "ORD0288",
+          "arrival_time": "19:15",
+          "arrival_minutes": 1155
+        },
+        {
+          "node": 285,
+          "location": "ORD0285",
+          "arrival_time": "19:22",
+          "arrival_minutes": 1162
+        },
+        {
+          "node": 36,
+          "location": "ORD0036",
+          "arrival_time": "19:27",
+          "arrival_minutes": 1167
+        },
+        {
+          "node": 489,
+          "location": "ORD0489",
+          "arrival_time": "19:34",
+          "arrival_minutes": 1174
+        },
+        {
+          "node": 22,
+          "location": "ORD0022",
+          "arrival_time": "19:42",
+          "arrival_minutes": 1182
+        },
+        {
+          "node": 396,
+          "location": "ORD0396",
+          "arrival_time": "19:47",
+          "arrival_minutes": 1187
+        },
+        {
+          "node": 276,
+          "location": "ORD0276",
+          "arrival_time": "19:54",
+          "arrival_minutes": 1194
+        },
+        {
+          "node": 200,
+          "location": "ORD0200",
+          "arrival_time": "19:59",
+          "arrival_minutes": 1199
+        },
+        {
+          "node": 335,
+          "location": "ORD0335",
+          "arrival_time": "20:05",
+          "arrival_minutes": 1205
+        },
+        {
+          "node": 457,
+          "location": "ORD0457",
+          "arrival_time": "20:15",
+          "arrival_minutes": 1215
+        },
+        {
+          "node": 81,
+          "location": "ORD0081",
+          "arrival_time": "20:21",
+          "arrival_minutes": 1221
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "20:50",
+          "arrival_minutes": 1250
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V011",
+      "distance_km": 133.3,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "15:42",
+          "arrival_minutes": 942
+        },
+        {
+          "node": 249,
+          "location": "ORD0249",
+          "arrival_time": "16:07",
+          "arrival_minutes": 967
+        },
+        {
+          "node": 379,
+          "location": "ORD0379",
+          "arrival_time": "16:13",
+          "arrival_minutes": 973
+        },
+        {
+          "node": 297,
+          "location": "ORD0297",
+          "arrival_time": "16:19",
+          "arrival_minutes": 979
+        },
+        {
+          "node": 381,
+          "location": "ORD0381",
+          "arrival_time": "16:23",
+          "arrival_minutes": 983
+        },
+        {
+          "node": 167,
+          "location": "ORD0167",
+          "arrival_time": "16:27",
+          "arrival_minutes": 987
+        },
+        {
+          "node": 366,
+          "location": "ORD0366",
+          "arrival_time": "16:34",
+          "arrival_minutes": 994
+        },
+        {
+          "node": 221,
+          "location": "ORD0221",
+          "arrival_time": "16:39",
+          "arrival_minutes": 999
+        },
+        {
+          "node": 55,
+          "location": "ORD0055",
+          "arrival_time": "16:44",
+          "arrival_minutes": 1004
+        },
+        {
+          "node": 241,
+          "location": "ORD0241",
+          "arrival_time": "16:51",
+          "arrival_minutes": 1011
+        },
+        {
+          "node": 279,
+          "location": "ORD0279",
+          "arrival_time": "16:57",
+          "arrival_minutes": 1017
+        },
+        {
+          "node": 105,
+          "location": "ORD0105",
+          "arrival_time": "17:02",
+          "arrival_minutes": 1022
+        },
+        {
+          "node": 442,
+          "location": "ORD0442",
+          "arrival_time": "17:06",
+          "arrival_minutes": 1026
+        },
+        {
+          "node": 93,
+          "location": "ORD0093",
+          "arrival_time": "17:15",
+          "arrival_minutes": 1035
+        },
+        {
+          "node": 449,
+          "location": "ORD0449",
+          "arrival_time": "17:19",
+          "arrival_minutes": 1039
+        },
+        {
+          "node": 87,
+          "location": "ORD0087",
+          "arrival_time": "17:24",
+          "arrival_minutes": 1044
+        },
+        {
+          "node": 464,
+          "location": "ORD0464",
+          "arrival_time": "17:29",
+          "arrival_minutes": 1049
+        },
+        {
+          "node": 403,
+          "location": "ORD0403",
+          "arrival_time": "17:34",
+          "arrival_minutes": 1054
+        },
+        {
+          "node": 117,
+          "location": "ORD0117",
+          "arrival_time": "17:51",
+          "arrival_minutes": 1071
+        },
+        {
+          "node": 410,
+          "location": "ORD0410",
+          "arrival_time": "17:56",
+          "arrival_minutes": 1076
+        },
+        {
+          "node": 472,
+          "location": "ORD0472",
+          "arrival_time": "18:03",
+          "arrival_minutes": 1083
+        },
+        {
+          "node": 385,
+          "location": "ORD0385",
+          "arrival_time": "18:08",
+          "arrival_minutes": 1088
+        },
+        {
+          "node": 245,
+          "location": "ORD0245",
+          "arrival_time": "18:12",
+          "arrival_minutes": 1092
+        },
+        {
+          "node": 280,
+          "location": "ORD0280",
+          "arrival_time": "18:20",
+          "arrival_minutes": 1100
+        },
+        {
+          "node": 394,
+          "location": "ORD0394",
+          "arrival_time": "18:27",
+          "arrival_minutes": 1107
+        },
+        {
+          "node": 495,
+          "location": "ORD0495",
+          "arrival_time": "18:31",
+          "arrival_minutes": 1111
+        },
+        {
+          "node": 195,
+          "location": "ORD0195",
+          "arrival_time": "18:35",
+          "arrival_minutes": 1115
+        },
+        {
+          "node": 118,
+          "location": "ORD0118",
+          "arrival_time": "18:40",
+          "arrival_minutes": 1120
+        },
+        {
+          "node": 311,
+          "location": "ORD0311",
+          "arrival_time": "18:47",
+          "arrival_minutes": 1127
+        },
+        {
+          "node": 59,
+          "location": "ORD0059",
+          "arrival_time": "19:02",
+          "arrival_minutes": 1142
+        },
+        {
+          "node": 148,
+          "location": "ORD0148",
+          "arrival_time": "19:09",
+          "arrival_minutes": 1149
+        },
+        {
+          "node": 153,
+          "location": "ORD0153",
+          "arrival_time": "19:14",
+          "arrival_minutes": 1154
+        },
+        {
+          "node": 151,
+          "location": "ORD0151",
+          "arrival_time": "19:20",
+          "arrival_minutes": 1160
+        },
+        {
+          "node": 341,
+          "location": "ORD0341",
+          "arrival_time": "19:24",
+          "arrival_minutes": 1164
+        },
+        {
+          "node": 160,
+          "location": "ORD0160",
+          "arrival_time": "19:29",
+          "arrival_minutes": 1169
+        },
+        {
+          "node": 415,
+          "location": "ORD0415",
+          "arrival_time": "19:33",
+          "arrival_minutes": 1173
+        },
+        {
+          "node": 239,
+          "location": "ORD0239",
+          "arrival_time": "19:38",
+          "arrival_minutes": 1178
+        },
+        {
+          "node": 185,
+          "location": "ORD0185",
+          "arrival_time": "19:43",
+          "arrival_minutes": 1183
+        },
+        {
+          "node": 65,
+          "location": "ORD0065",
+          "arrival_time": "19:49",
+          "arrival_minutes": 1189
+        },
+        {
+          "node": 309,
+          "location": "ORD0309",
+          "arrival_time": "19:56",
+          "arrival_minutes": 1196
+        },
+        {
+          "node": 223,
+          "location": "ORD0223",
+          "arrival_time": "20:11",
+          "arrival_minutes": 1211
+        },
+        {
+          "node": 310,
+          "location": "ORD0310",
+          "arrival_time": "20:15",
+          "arrival_minutes": 1215
+        },
+        {
+          "node": 294,
+          "location": "ORD0294",
+          "arrival_time": "20:25",
+          "arrival_minutes": 1225
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "20:50",
+          "arrival_minutes": 1250
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V012",
+      "distance_km": 156.95,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "10:17",
+          "arrival_minutes": 617
+        },
+        {
+          "node": 390,
+          "location": "ORD0390",
+          "arrival_time": "10:41",
+          "arrival_minutes": 641
+        },
+        {
+          "node": 204,
+          "location": "ORD0204",
+          "arrival_time": "10:45",
+          "arrival_minutes": 645
+        },
+        {
+          "node": 378,
+          "location": "ORD0378",
+          "arrival_time": "10:51",
+          "arrival_minutes": 651
+        },
+        {
+          "node": 391,
+          "location": "ORD0391",
+          "arrival_time": "10:57",
+          "arrival_minutes": 657
+        },
+        {
+          "node": 47,
+          "location": "ORD0047",
+          "arrival_time": "11:04",
+          "arrival_minutes": 664
+        },
+        {
+          "node": 328,
+          "location": "ORD0328",
+          "arrival_time": "11:11",
+          "arrival_minutes": 671
+        },
+        {
+          "node": 50,
+          "location": "ORD0050",
+          "arrival_time": "11:14",
+          "arrival_minutes": 674
+        },
+        {
+          "node": 450,
+          "location": "ORD0450",
+          "arrival_time": "11:18",
+          "arrival_minutes": 678
+        },
+        {
+          "node": 132,
+          "location": "ORD0132",
+          "arrival_time": "11:27",
+          "arrival_minutes": 687
+        },
+        {
+          "node": 347,
+          "location": "ORD0347",
+          "arrival_time": "11:36",
+          "arrival_minutes": 696
+        },
+        {
+          "node": 422,
+          "location": "ORD0422",
+          "arrival_time": "11:42",
+          "arrival_minutes": 702
+        },
+        {
+          "node": 62,
+          "location": "ORD0062",
+          "arrival_time": "11:47",
+          "arrival_minutes": 707
+        },
+        {
+          "node": 237,
+          "location": "ORD0237",
+          "arrival_time": "11:51",
+          "arrival_minutes": 711
+        },
+        {
+          "node": 268,
+          "location": "ORD0268",
+          "arrival_time": "12:06",
+          "arrival_minutes": 726
+        },
+        {
+          "node": 181,
+          "location": "ORD0181",
+          "arrival_time": "12:11",
+          "arrival_minutes": 731
+        },
+        {
+          "node": 203,
+          "location": "ORD0203",
+          "arrival_time": "12:17",
+          "arrival_minutes": 737
+        },
+        {
+          "node": 158,
+          "location": "ORD0158",
+          "arrival_time": "12:21",
+          "arrival_minutes": 741
+        },
+        {
+          "node": 360,
+          "location": "ORD0360",
+          "arrival_time": "12:26",
+          "arrival_minutes": 746
+        },
+        {
+          "node": 467,
+          "location": "ORD0467",
+          "arrival_time": "12:32",
+          "arrival_minutes": 752
+        },
+        {
+          "node": 78,
+          "location": "ORD0078",
+          "arrival_time": "12:36",
+          "arrival_minutes": 756
+        },
+        {
+          "node": 250,
+          "location": "ORD0250",
+          "arrival_time": "12:44",
+          "arrival_minutes": 764
+        },
+        {
+          "node": 192,
+          "location": "ORD0192",
+          "arrival_time": "12:49",
+          "arrival_minutes": 769
+        },
+        {
+          "node": 345,
+          "location": "ORD0345",
+          "arrival_time": "12:52",
+          "arrival_minutes": 772
+        },
+        {
+          "node": 376,
+          "location": "ORD0376",
+          "arrival_time": "12:57",
+          "arrival_minutes": 777
+        },
+        {
+          "node": 43,
+          "location": "ORD0043",
+          "arrival_time": "13:04",
+          "arrival_minutes": 784
+        },
+        {
+          "node": 484,
+          "location": "ORD0484",
+          "arrival_time": "13:07",
+          "arrival_minutes": 787
+        },
+        {
+          "node": 480,
+          "location": "ORD0480",
+          "arrival_time": "13:16",
+          "arrival_minutes": 796
+        },
+        {
+          "node": 320,
+          "location": "ORD0320",
+          "arrival_time": "13:28",
+          "arrival_minutes": 808
+        },
+        {
+          "node": 473,
+          "location": "ORD0473",
+          "arrival_time": "13:39",
+          "arrival_minutes": 819
+        },
+        {
+          "node": 291,
+          "location": "ORD0291",
+          "arrival_time": "13:48",
+          "arrival_minutes": 828
+        },
+        {
+          "node": 411,
+          "location": "ORD0411",
+          "arrival_time": "13:52",
+          "arrival_minutes": 832
+        },
+        {
+          "node": 424,
+          "location": "ORD0424",
+          "arrival_time": "14:06",
+          "arrival_minutes": 846
+        },
+        {
+          "node": 7,
+          "location": "ORD0007",
+          "arrival_time": "14:14",
+          "arrival_minutes": 854
+        },
+        {
+          "node": 332,
+          "location": "ORD0332",
+          "arrival_time": "14:17",
+          "arrival_minutes": 857
+        },
+        {
+          "node": 56,
+          "location": "ORD0056",
+          "arrival_time": "14:24",
+          "arrival_minutes": 864
+        },
+        {
+          "node": 356,
+          "location": "ORD0356",
+          "arrival_time": "14:30",
+          "arrival_minutes": 870
+        },
+        {
+          "node": 397,
+          "location": "ORD0397",
+          "arrival_time": "14:38",
+          "arrival_minutes": 878
+        },
+        {
+          "node": 11,
+          "location": "ORD0011",
+          "arrival_time": "14:45",
+          "arrival_minutes": 885
+        },
+        {
+          "node": 8,
+          "location": "ORD0008",
+          "arrival_time": "14:50",
+          "arrival_minutes": 890
+        },
+        {
+          "node": 15,
+          "location": "ORD0015",
+          "arrival_time": "14:55",
+          "arrival_minutes": 895
+        },
+        {
+          "node": 466,
+          "location": "ORD0466",
+          "arrival_time": "15:07",
+          "arrival_minutes": 907
+        },
+        {
+          "node": 322,
+          "location": "ORD0322",
+          "arrival_time": "15:12",
+          "arrival_minutes": 912
+        },
+        {
+          "node": 16,
+          "location": "ORD0016",
+          "arrival_time": "15:15",
+          "arrival_minutes": 915
+        },
+        {
+          "node": 334,
+          "location": "ORD0334",
+          "arrival_time": "15:19",
+          "arrival_minutes": 919
+        },
+        {
+          "node": 243,
+          "location": "ORD0243",
+          "arrival_time": "15:26",
+          "arrival_minutes": 926
+        },
+        {
+          "node": 214,
+          "location": "ORD0214",
+          "arrival_time": "15:32",
+          "arrival_minutes": 932
+        },
+        {
+          "node": 228,
+          "location": "ORD0228",
+          "arrival_time": "15:35",
+          "arrival_minutes": 935
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "16:07",
+          "arrival_minutes": 967
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V013",
+      "distance_km": 296.54,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "09:09",
+          "arrival_minutes": 549
+        },
+        {
+          "node": 212,
+          "location": "ORD0212",
+          "arrival_time": "09:37",
+          "arrival_minutes": 577
+        },
+        {
+          "node": 292,
+          "location": "ORD0292",
+          "arrival_time": "09:40",
+          "arrival_minutes": 580
+        },
+        {
+          "node": 318,
+          "location": "ORD0318",
+          "arrival_time": "10:55",
+          "arrival_minutes": 655
+        },
+        {
+          "node": 238,
+          "location": "ORD0238",
+          "arrival_time": "12:12",
+          "arrival_minutes": 732
+        },
+        {
+          "node": 194,
+          "location": "ORD0194",
+          "arrival_time": "12:24",
+          "arrival_minutes": 744
+        },
+        {
+          "node": 141,
+          "location": "ORD0141",
+          "arrival_time": "12:33",
+          "arrival_minutes": 753
+        },
+        {
+          "node": 73,
+          "location": "ORD0073",
+          "arrival_time": "12:55",
+          "arrival_minutes": 775
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "13:26",
+          "arrival_minutes": 806
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V014",
+      "distance_km": 140.76,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "14:31",
+          "arrival_minutes": 871
+        },
+        {
+          "node": 251,
+          "location": "ORD0251",
+          "arrival_time": "15:00",
+          "arrival_minutes": 900
+        },
+        {
+          "node": 305,
+          "location": "ORD0305",
+          "arrival_time": "15:13",
+          "arrival_minutes": 913
+        },
+        {
+          "node": 188,
+          "location": "ORD0188",
+          "arrival_time": "15:26",
+          "arrival_minutes": 926
+        },
+        {
+          "node": 344,
+          "location": "ORD0344",
+          "arrival_time": "15:33",
+          "arrival_minutes": 933
+        },
+        {
+          "node": 354,
+          "location": "ORD0354",
+          "arrival_time": "15:38",
+          "arrival_minutes": 938
+        },
+        {
+          "node": 232,
+          "location": "ORD0232",
+          "arrival_time": "15:45",
+          "arrival_minutes": 945
+        },
+        {
+          "node": 406,
+          "location": "ORD0406",
+          "arrival_time": "15:50",
+          "arrival_minutes": 950
+        },
+        {
+          "node": 315,
+          "location": "ORD0315",
+          "arrival_time": "15:56",
+          "arrival_minutes": 956
+        },
+        {
+          "node": 156,
+          "location": "ORD0156",
+          "arrival_time": "16:01",
+          "arrival_minutes": 961
+        },
+        {
+          "node": 413,
+          "location": "ORD0413",
+          "arrival_time": "16:05",
+          "arrival_minutes": 965
+        },
+        {
+          "node": 25,
+          "location": "ORD0025",
+          "arrival_time": "16:13",
+          "arrival_minutes": 973
+        },
+        {
+          "node": 119,
+          "location": "ORD0119",
+          "arrival_time": "16:20",
+          "arrival_minutes": 980
+        },
+        {
+          "node": 175,
+          "location": "ORD0175",
+          "arrival_time": "16:26",
+          "arrival_minutes": 986
+        },
+        {
+          "node": 83,
+          "location": "ORD0083",
+          "arrival_time": "16:32",
+          "arrival_minutes": 992
+        },
+        {
+          "node": 434,
+          "location": "ORD0434",
+          "arrival_time": "16:40",
+          "arrival_minutes": 1000
+        },
+        {
+          "node": 319,
+          "location": "ORD0319",
+          "arrival_time": "16:46",
+          "arrival_minutes": 1006
+        },
+        {
+          "node": 126,
+          "location": "ORD0126",
+          "arrival_time": "16:56",
+          "arrival_minutes": 1016
+        },
+        {
+          "node": 190,
+          "location": "ORD0190",
+          "arrival_time": "17:01",
+          "arrival_minutes": 1021
+        },
+        {
+          "node": 231,
+          "location": "ORD0231",
+          "arrival_time": "17:07",
+          "arrival_minutes": 1027
+        },
+        {
+          "node": 28,
+          "location": "ORD0028",
+          "arrival_time": "17:13",
+          "arrival_minutes": 1033
+        },
+        {
+          "node": 468,
+          "location": "ORD0468",
+          "arrival_time": "17:19",
+          "arrival_minutes": 1039
+        },
+        {
+          "node": 165,
+          "location": "ORD0165",
+          "arrival_time": "17:22",
+          "arrival_minutes": 1042
+        },
+        {
+          "node": 146,
+          "location": "ORD0146",
+          "arrival_time": "17:25",
+          "arrival_minutes": 1045
+        },
+        {
+          "node": 150,
+          "location": "ORD0150",
+          "arrival_time": "17:29",
+          "arrival_minutes": 1049
+        },
+        {
+          "node": 205,
+          "location": "ORD0205",
+          "arrival_time": "17:35",
+          "arrival_minutes": 1055
+        },
+        {
+          "node": 88,
+          "location": "ORD0088",
+          "arrival_time": "17:41",
+          "arrival_minutes": 1061
+        },
+        {
+          "node": 67,
+          "location": "ORD0067",
+          "arrival_time": "17:48",
+          "arrival_minutes": 1068
+        },
+        {
+          "node": 39,
+          "location": "ORD0039",
+          "arrival_time": "17:52",
+          "arrival_minutes": 1072
+        },
+        {
+          "node": 317,
+          "location": "ORD0317",
+          "arrival_time": "17:57",
+          "arrival_minutes": 1077
+        },
+        {
+          "node": 259,
+          "location": "ORD0259",
+          "arrival_time": "18:02",
+          "arrival_minutes": 1082
+        },
+        {
+          "node": 230,
+          "location": "ORD0230",
+          "arrival_time": "18:07",
+          "arrival_minutes": 1087
+        },
+        {
+          "node": 108,
+          "location": "ORD0108",
+          "arrival_time": "18:15",
+          "arrival_minutes": 1095
+        },
+        {
+          "node": 75,
+          "location": "ORD0075",
+          "arrival_time": "18:23",
+          "arrival_minutes": 1103
+        },
+        {
+          "node": 209,
+          "location": "ORD0209",
+          "arrival_time": "18:29",
+          "arrival_minutes": 1109
+        },
+        {
+          "node": 373,
+          "location": "ORD0373",
+          "arrival_time": "18:35",
+          "arrival_minutes": 1115
+        },
+        {
+          "node": 120,
+          "location": "ORD0120",
+          "arrival_time": "18:46",
+          "arrival_minutes": 1126
+        },
+        {
+          "node": 364,
+          "location": "ORD0364",
+          "arrival_time": "18:57",
+          "arrival_minutes": 1137
+        },
+        {
+          "node": 258,
+          "location": "ORD0258",
+          "arrival_time": "19:01",
+          "arrival_minutes": 1141
+        },
+        {
+          "node": 76,
+          "location": "ORD0076",
+          "arrival_time": "19:05",
+          "arrival_minutes": 1145
+        },
+        {
+          "node": 437,
+          "location": "ORD0437",
+          "arrival_time": "19:14",
+          "arrival_minutes": 1154
+        },
+        {
+          "node": 395,
+          "location": "ORD0395",
+          "arrival_time": "19:18",
+          "arrival_minutes": 1158
+        },
+        {
+          "node": 384,
+          "location": "ORD0384",
+          "arrival_time": "19:23",
+          "arrival_minutes": 1163
+        },
+        {
+          "node": 32,
+          "location": "ORD0032",
+          "arrival_time": "19:27",
+          "arrival_minutes": 1167
+        },
+        {
+          "node": 448,
+          "location": "ORD0448",
+          "arrival_time": "19:31",
+          "arrival_minutes": 1171
+        },
+        {
+          "node": 70,
+          "location": "ORD0070",
+          "arrival_time": "19:35",
+          "arrival_minutes": 1175
+        },
+        {
+          "node": 80,
+          "location": "ORD0080",
+          "arrival_time": "19:39",
+          "arrival_minutes": 1179
+        },
+        {
+          "node": 329,
+          "location": "ORD0329",
+          "arrival_time": "19:46",
+          "arrival_minutes": 1186
+        },
+        {
+          "node": 414,
+          "location": "ORD0414",
+          "arrival_time": "19:50",
+          "arrival_minutes": 1190
+        },
+        {
+          "node": 123,
+          "location": "ORD0123",
+          "arrival_time": "19:55",
+          "arrival_minutes": 1195
+        },
+        {
+          "node": 157,
+          "location": "ORD0157",
+          "arrival_time": "20:03",
+          "arrival_minutes": 1203
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "20:25",
+          "arrival_minutes": 1225
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V017",
+      "distance_km": 160.59,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "15:16",
+          "arrival_minutes": 916
+        },
+        {
+          "node": 302,
+          "location": "ORD0302",
+          "arrival_time": "15:37",
+          "arrival_minutes": 937
+        },
+        {
+          "node": 170,
+          "location": "ORD0170",
+          "arrival_time": "15:46",
+          "arrival_minutes": 946
+        },
+        {
+          "node": 169,
+          "location": "ORD0169",
+          "arrival_time": "15:56",
+          "arrival_minutes": 956
+        },
+        {
+          "node": 191,
+          "location": "ORD0191",
+          "arrival_time": "15:59",
+          "arrival_minutes": 959
+        },
+        {
+          "node": 219,
+          "location": "ORD0219",
+          "arrival_time": "16:09",
+          "arrival_minutes": 969
+        },
+        {
+          "node": 131,
+          "location": "ORD0131",
+          "arrival_time": "16:15",
+          "arrival_minutes": 975
+        },
+        {
+          "node": 206,
+          "location": "ORD0206",
+          "arrival_time": "16:20",
+          "arrival_minutes": 980
+        },
+        {
+          "node": 14,
+          "location": "ORD0014",
+          "arrival_time": "16:38",
+          "arrival_minutes": 998
+        },
+        {
+          "node": 300,
+          "location": "ORD0300",
+          "arrival_time": "16:42",
+          "arrival_minutes": 1002
+        },
+        {
+          "node": 312,
+          "location": "ORD0312",
+          "arrival_time": "16:47",
+          "arrival_minutes": 1007
+        },
+        {
+          "node": 486,
+          "location": "ORD0486",
+          "arrival_time": "16:51",
+          "arrival_minutes": 1011
+        },
+        {
+          "node": 439,
+          "location": "ORD0439",
+          "arrival_time": "17:03",
+          "arrival_minutes": 1023
+        },
+        {
+          "node": 438,
+          "location": "ORD0438",
+          "arrival_time": "17:08",
+          "arrival_minutes": 1028
+        },
+        {
+          "node": 370,
+          "location": "ORD0370",
+          "arrival_time": "17:15",
+          "arrival_minutes": 1035
+        },
+        {
+          "node": 130,
+          "location": "ORD0130",
+          "arrival_time": "17:21",
+          "arrival_minutes": 1041
+        },
+        {
+          "node": 216,
+          "location": "ORD0216",
+          "arrival_time": "17:27",
+          "arrival_minutes": 1047
+        },
+        {
+          "node": 301,
+          "location": "ORD0301",
+          "arrival_time": "17:31",
+          "arrival_minutes": 1051
+        },
+        {
+          "node": 242,
+          "location": "ORD0242",
+          "arrival_time": "17:38",
+          "arrival_minutes": 1058
+        },
+        {
+          "node": 436,
+          "location": "ORD0436",
+          "arrival_time": "17:44",
+          "arrival_minutes": 1064
+        },
+        {
+          "node": 114,
+          "location": "ORD0114",
+          "arrival_time": "17:53",
+          "arrival_minutes": 1073
+        },
+        {
+          "node": 500,
+          "location": "ORD0500",
+          "arrival_time": "18:01",
+          "arrival_minutes": 1081
+        },
+        {
+          "node": 210,
+          "location": "ORD0210",
+          "arrival_time": "18:05",
+          "arrival_minutes": 1085
+        },
+        {
+          "node": 365,
+          "location": "ORD0365",
+          "arrival_time": "18:14",
+          "arrival_minutes": 1094
+        },
+        {
+          "node": 174,
+          "location": "ORD0174",
+          "arrival_time": "18:17",
+          "arrival_minutes": 1097
+        },
+        {
+          "node": 452,
+          "location": "ORD0452",
+          "arrival_time": "18:26",
+          "arrival_minutes": 1106
+        },
+        {
+          "node": 412,
+          "location": "ORD0412",
+          "arrival_time": "18:34",
+          "arrival_minutes": 1114
+        },
+        {
+          "node": 293,
+          "location": "ORD0293",
+          "arrival_time": "18:39",
+          "arrival_minutes": 1119
+        },
+        {
+          "node": 143,
+          "location": "ORD0143",
+          "arrival_time": "18:45",
+          "arrival_minutes": 1125
+        },
+        {
+          "node": 491,
+          "location": "ORD0491",
+          "arrival_time": "18:50",
+          "arrival_minutes": 1130
+        },
+        {
+          "node": 215,
+          "location": "ORD0215",
+          "arrival_time": "18:54",
+          "arrival_minutes": 1134
+        },
+        {
+          "node": 485,
+          "location": "ORD0485",
+          "arrival_time": "19:02",
+          "arrival_minutes": 1142
+        },
+        {
+          "node": 77,
+          "location": "ORD0077",
+          "arrival_time": "19:13",
+          "arrival_minutes": 1153
+        },
+        {
+          "node": 5,
+          "location": "ORD0005",
+          "arrival_time": "19:17",
+          "arrival_minutes": 1157
+        },
+        {
+          "node": 321,
+          "location": "ORD0321",
+          "arrival_time": "19:21",
+          "arrival_minutes": 1161
+        },
+        {
+          "node": 498,
+          "location": "ORD0498",
+          "arrival_time": "19:30",
+          "arrival_minutes": 1170
+        },
+        {
+          "node": 343,
+          "location": "ORD0343",
+          "arrival_time": "19:36",
+          "arrival_minutes": 1176
+        },
+        {
+          "node": 377,
+          "location": "ORD0377",
+          "arrival_time": "19:42",
+          "arrival_minutes": 1182
+        },
+        {
+          "node": 266,
+          "location": "ORD0266",
+          "arrival_time": "19:49",
+          "arrival_minutes": 1189
+        },
+        {
+          "node": 299,
+          "location": "ORD0299",
+          "arrival_time": "19:53",
+          "arrival_minutes": 1193
+        },
+        {
+          "node": 278,
+          "location": "ORD0278",
+          "arrival_time": "20:00",
+          "arrival_minutes": 1200
+        },
+        {
+          "node": 476,
+          "location": "ORD0476",
+          "arrival_time": "20:09",
+          "arrival_minutes": 1209
+        },
+        {
+          "node": 134,
+          "location": "ORD0134",
+          "arrival_time": "20:16",
+          "arrival_minutes": 1216
+        },
+        {
+          "node": 220,
+          "location": "ORD0220",
+          "arrival_time": "20:34",
+          "arrival_minutes": 1234
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "21:11",
+          "arrival_minutes": 1271
+        }
+      ]
+    },
+    {
+      "vehicle_id": "V020",
+      "distance_km": 387.1,
+      "stops": [
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "14:21",
+          "arrival_minutes": 861
+        },
+        {
+          "node": 338,
+          "location": "ORD0338",
+          "arrival_time": "16:13",
+          "arrival_minutes": 973
+        },
+        {
+          "node": 433,
+          "location": "ORD0433",
+          "arrival_time": "17:45",
+          "arrival_minutes": 1065
+        },
+        {
+          "node": 274,
+          "location": "ORD0274",
+          "arrival_time": "17:55",
+          "arrival_minutes": 1075
+        },
+        {
+          "node": 222,
+          "location": "ORD0222",
+          "arrival_time": "18:14",
+          "arrival_minutes": 1094
+        },
+        {
+          "node": 74,
+          "location": "ORD0074",
+          "arrival_time": "18:25",
+          "arrival_minutes": 1105
+        },
+        {
+          "node": 35,
+          "location": "ORD0035",
+          "arrival_time": "18:34",
+          "arrival_minutes": 1114
+        },
+        {
+          "node": 99,
+          "location": "ORD0099",
+          "arrival_time": "19:09",
+          "arrival_minutes": 1149
+        },
+        {
+          "node": 0,
+          "location": "DEPOT",
+          "arrival_time": "20:12",
+          "arrival_minutes": 1212
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "vehicles_used": 14,
+    "total_vehicles": 20,
+    "total_distance_km": 2573.98
+  }
+}

@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
-import { MapPin, Upload, X, Package, Trash2, Truck, Zap, AlertCircle, TrendingDown, Clock, Map } from 'lucide-react';
+import { MapPin, Upload, X, Package, Trash2, Truck, Zap, AlertCircle, TrendingDown, Clock, Map as MapIcon } from 'lucide-react';
+
+// Import pre-calculated solutions
+import solutionSimple from './solution_simple.json';
+import solutionEco from './solution_eco.json';
+import solutionElectric from './solution_electric_vehicles.json';
+import solutionTimeOnly from './solution_time_only.json';
+// import solution5p5h from './solution_5p5h_shifts.json';
+import solution7h from './solution_7h_shifts.json';
+import solutionCustomVehicles from './solution_custom_vehicles.json';
 
 const App = () => {
   const [orders, setOrders] = useState([]);
@@ -8,21 +17,62 @@ const App = () => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [uploadingOrders, setUploadingOrders] = useState(false);
   const [uploadingVehicles, setUploadingVehicles] = useState(false);
-  const [optimizing, setOptimizing] = useState(false);
+  // const [optimizing, setOptimizing] = useState(false);
   const [cacheCount, setCacheCount] = useState(0);
   const [algorithmResults, setAlgorithmResults] = useState(null);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('distanceFirst');
+  const [selectedSolution, setSelectedSolution] = useState(null); // For pre-loaded solutions
   const [visibleVehicles, setVisibleVehicles] = useState(new Set());
-  const [recalculatingAlgo, setRecalculatingAlgo] = useState(null); // Track which algo is recalculating
+  const [recalculatingAlgo, setRecalculatingAlgo] = useState(null);
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
-  const polylinesRef = useRef([]); // Store polyline layers
+  const polylinesRef = useRef([]);
 
   const COLORS = ['#ff3b4a', '#00d4ff', '#7c3aed', '#f59e0b', '#10b981', 
                   '#ec4899', '#3b82f6', '#8b5cf6', '#f97316', '#14b8a6',
                   '#ef4444', '#06b6d4', '#a855f7', '#eab308', '#22c55e',
                   '#db2777', '#6366f1', '#d946ef', '#fb923c', '#2dd4bf'];
+
+  // Pre-loaded solution strategies
+  const SOLUTIONS = {
+    simple: {
+      name: 'Simple Route',
+      description: 'Basic distance optimization',
+      icon: MapIcon,
+      data: solutionSimple
+    },
+    eco: {
+      name: 'Eco-Friendly',
+      description: 'Minimize CO2 emissions',
+      icon: Zap,
+      data: solutionEco
+    },
+    electric: {
+      name: 'Electric Only',
+      description: 'Use only electric vehicles',
+      icon: Zap,
+      data: solutionElectric
+    },
+    timeOnly: {
+      name: 'Time Priority',
+      description: 'Optimize for delivery windows',
+      icon: Clock,
+      data: solutionTimeOnly
+    },
+    shifts7h: {
+      name: '7h Shifts',
+      description: 'Standard driver shifts',
+      icon: Clock,
+      data: solution7h
+    },
+    customVehicles: {
+      name: 'Rainy Conditions',
+      description: 'Excluded vehicles unsuitable for rain',
+      icon: Truck,
+      data: solutionCustomVehicles
+    }
+  };
 
   // Update cache count on mount
   useEffect(() => {
@@ -55,7 +105,7 @@ const App = () => {
       const map = window.L.map(mapRef.current).setView([46.1512, 14.9955], 8);
       
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Â© OpenStreetMap contributors',
+        attribution: 'Ã‚Â© OpenStreetMap contributors',
         maxZoom: 19
       }).addTo(map);
 
@@ -172,7 +222,7 @@ const App = () => {
               await new Promise(resolve => setTimeout(resolve, 1100));
             }
           } else {
-            console.warn(`âœ— Could not geocode: ${address}`);
+            console.warn(`Ã¢Å“â€” Could not geocode: ${address}`);
             skippedCount++;
           }
         } else {
@@ -284,54 +334,54 @@ const App = () => {
   };
 
   // Call backend API for route optimization
-  const assignOrdersToVehicles = async () => {
-    if (orders.length === 0 || vehicles.length === 0) {
-      alert('Please upload both orders and vehicles first.');
-      return;
-    }
+  // const assignOrdersToVehicles = async () => {
+  //   if (orders.length === 0 || vehicles.length === 0) {
+  //     alert('Please upload both orders and vehicles first.');
+  //     return;
+  //   }
 
-    setOptimizing(true);
-    console.log('Calling backend for route optimization with 2 algorithms...');
+  //   setOptimizing(true);
+  //   console.log('Calling backend for route optimization with 2 algorithms...');
 
-    try {
-      const response = await fetch('http://localhost:5000/api/optimize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orders: orders,
-          vehicles: vehicles
-        })
-      });
+  //   try {
+  //     const response = await fetch('http://localhost:5000/api/optimize', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         orders: orders,
+  //         vehicles: vehicles
+  //       })
+  //     });
 
-      if (!response.ok) {
-        throw new Error(`Backend error: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`Backend error: ${response.status}`);
+  //     }
 
-      const result = await response.json();
+  //     const result = await response.json();
       
-      console.log('Received algorithm results from backend:', result);
+  //     console.log('Received algorithm results from backend:', result);
       
-      setAlgorithmResults(result.algorithms);
-      setSelectedAlgorithm('distanceFirst');
+  //     setAlgorithmResults(result.algorithms);
+  //     setSelectedAlgorithm('distanceFirst');
       
-      // Initialize all vehicles as visible for default algorithm
-      const defaultRoutes = result.algorithms.distanceFirst.routes;
-      const allVehicleIds = new Set(defaultRoutes.map(r => r.vehicle.id));
-      setVisibleVehicles(allVehicleIds);
+  //     // Initialize all vehicles as visible for default algorithm
+  //     const defaultRoutes = result.algorithms.distanceFirst.routes;
+  //     const allVehicleIds = new Set(defaultRoutes.map(r => r.vehicle.id));
+  //     setVisibleVehicles(allVehicleIds);
       
-      displayRoutesWithFilter(defaultRoutes, allVehicleIds);
-      setOptimizing(false);
+  //     displayRoutesWithFilter(defaultRoutes, allVehicleIds);
+  //     setOptimizing(false);
 
-      alert(`✅ Optimization Complete!\n\nCompared 2 algorithms:\n🔵 Distance-First (lowest cost)\n🟢 Time-First (best service)\n\nSelect an algorithm to view results.`);
+  //     alert(`âœ… Optimization Complete!\n\nCompared 2 algorithms:\nðŸ”µ Distance-First (lowest cost)\nðŸŸ¢ Time-First (best service)\n\nSelect an algorithm to view results.`);
 
-    } catch (error) {
-      console.error('Backend error:', error);
-      setOptimizing(false);
-      alert(`âŒ Backend Error\n\nCouldn't connect to optimization backend.\n\nMake sure the Python backend is running:\npython backend_app.py\n\nError: ${error.message}`);
-    }
-  };
+  //   } catch (error) {
+  //     console.error('Backend error:', error);
+  //     setOptimizing(false);
+  //     alert(`Ã¢ÂÅ’ Backend Error\n\nCouldn't connect to optimization backend.\n\nMake sure the Python backend is running:\npython backend_app.py\n\nError: ${error.message}`);
+  //   }
+  // };
 
   // Change selected algorithm
   const selectAlgorithm = (algoKey) => {
@@ -393,7 +443,7 @@ const App = () => {
         setVisibleVehicles(allVehicleIds);
         displayRoutesWithFilter(result.routes, allVehicleIds);
         
-        // Update driver app with new routes
+        // Update driver app
         fetch('http://localhost:5000/api/driver/set-routes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -402,18 +452,170 @@ const App = () => {
       }
 
       setRecalculatingAlgo(null);
-
-      alert(`✅ Real Road Distances Calculated!\n\n${result.osrmStats.totalRequests} routes calculated\n${result.osrmStats.successRate}% success rate\n\nNew total: ${result.stats.totalDistance}km`);
+      alert('✅ Routes recalculated with real road distances!');
 
     } catch (error) {
       console.error('OSRM recalculation error:', error);
       setRecalculatingAlgo(null);
-      alert(`âŒ Error calculating real distances\n\nMake sure backend is running.\n\nError: ${error.message}`);
+      alert(`⚠️ OSRM Recalculation Failed\n\n${error.message}`);
     }
   };
 
+  // Load pre-calculated solution
+  const loadSolution = async (solutionKey) => {
+    const solution = SOLUTIONS[solutionKey];
+    if (!solution || !solution.data) return;
+
+    console.log(`Loading pre-calculated solution: ${solution.name}`);
+    
+    // First, ensure we have orders and vehicles loaded from the Excel files
+    if (orders.length === 0) {
+      alert('⚠️ Please upload orders.xlsx first to map the locations!');
+      return;
+    }
+
+    setSelectedSolution(solutionKey);
+    
+    // Convert the solution format to match what the UI expects
+    const solutionData = solution.data;
+    
+    console.log(`Solution has ${solutionData.routes.length} routes`);
+    
+    // Create a map of order IDs to full order data
+    const orderMap = new Map();
+    orders.forEach(order => {
+      orderMap.set(order.id, order);
+    });
+    
+    console.log(`Order map has ${orderMap.size} orders. Sample IDs:`, Array.from(orderMap.keys()).slice(0, 5));
+
+    // Transform routes to match UI format
+    const transformedRoutes = solutionData.routes.map((route, routeIdx) => {
+      const color = COLORS[routeIdx % COLORS.length];
+      
+      console.log(`Processing route ${routeIdx + 1}/${solutionData.routes.length} for vehicle ${route.vehicle_id}`);
+      
+      // Extract orders from stops (skip depot stops)
+      const routeOrders = route.stops
+        .filter(stop => stop.location !== 'DEPOT')
+        .map(stop => {
+          const orderId = stop.location;
+          const orderData = orderMap.get(orderId);
+          
+          if (!orderData) {
+            console.warn(`Order ${orderId} not found in loaded orders`);
+            return null;
+          }
+
+          return {
+            ...orderData,
+            arrivalTime: stop.arrival_time,
+            arrivalMinutes: stop.arrival_minutes,
+            onTime: true,
+            lateness: 0
+          };
+        })
+        .filter(order => order !== null);
+      
+      console.log(`  Route has ${routeOrders.length} valid orders`);
+
+      return {
+        vehicle: {
+          id: route.vehicle_id,
+          type: 'standard',
+          maxCapacity: 1000 // Default capacity
+        },
+        orders: routeOrders,
+        totalDistance: route.distance_km.toFixed(2),
+        color: color,
+        onTimeDeliveries: routeOrders.length,
+        lateDeliveries: 0, // Pre-loaded solutions assume all on time
+        routeSegments: [] // No OSRM segments for pre-loaded solutions, but we'll draw simple lines
+      };
+    });
+
+    // After creating transformedRoutes, add simple route lines
+    transformedRoutes.forEach(route => {
+      if (route.orders.length > 0) {
+        // Create coordinates array for the route
+        const routeCoords = route.orders.map(order => [order.lat, order.lng]);
+        
+        // Store as simple segments (straight lines between stops)
+        route.routeSegments = [];
+        
+        // Add segment for each consecutive pair of stops
+        for (let i = 0; i < routeCoords.length - 1; i++) {
+          route.routeSegments.push({
+            geometry: [routeCoords[i], routeCoords[i + 1]],
+            distance: 0, // We don't have distance per segment
+            returnToDepot: false
+          });
+        }
+        
+        // Add return to depot line (from last order back to first order as approximation)
+        if (routeCoords.length > 0) {
+          route.routeSegments.push({
+            geometry: [routeCoords[routeCoords.length - 1], routeCoords[0]],
+            distance: 0,
+            returnToDepot: true
+          });
+        }
+      }
+    });
+
+    // Calculate summary stats
+    const totalDistance = transformedRoutes.reduce((sum, r) => sum + parseFloat(r.totalDistance), 0);
+    const totalOrders = transformedRoutes.reduce((sum, r) => sum + r.orders.length, 0);
+    const vehiclesUsed = transformedRoutes.length;
+    
+    const stats = {
+      totalDistance: totalDistance.toFixed(2),
+      totalOrders: totalOrders,
+      vehiclesUsed: vehiclesUsed,
+      avgUtilization: totalOrders > 0 ? Math.round((totalOrders / vehiclesUsed) * 100 / 50) : 0, // Rough estimate
+      lateDeliveries: 0,
+      avgLateness: 0,
+      co2Emissions: (totalDistance * 150).toFixed(0) // Rough estimate: 150g CO2/km
+    };
+
+    // Create algorithm result format
+    const algorithmResult = {
+      routes: transformedRoutes,
+      stats: stats,
+      distanceType: 'estimated'
+    };
+
+    // Set this as the only algorithm result
+    setAlgorithmResults({
+      [solutionKey]: algorithmResult
+    });
+    setSelectedAlgorithm(solutionKey);
+
+    // Initialize all vehicles as visible
+    const allVehicleIds = new Set(transformedRoutes.map(r => r.vehicle.id));
+    setVisibleVehicles(allVehicleIds);
+    
+    // Display the routes
+    displayRoutesWithFilter(transformedRoutes, allVehicleIds);
+    
+    console.log(`✅ Loaded ${solution.name}:`, {
+      vehicles: vehiclesUsed,
+      orders: totalOrders,
+      distance: totalDistance.toFixed(2),
+      routesWithOrders: transformedRoutes.filter(r => r.orders.length > 0).length
+    });
+    
+    // Update driver app
+    fetch('http://localhost:5000/api/driver/set-routes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ routes: transformedRoutes, stats })
+    }).catch(err => console.log('Driver app update failed:', err));
+  };
   // Toggle vehicle visibility
   const toggleVehicle = (vehicleId) => {
+    if (!algorithmResults) return;
+    
     const newVisible = new Set(visibleVehicles);
     if (newVisible.has(vehicleId)) {
       newVisible.delete(vehicleId);
@@ -428,6 +630,7 @@ const App = () => {
 
   // Show all vehicles
   const showAllVehicles = () => {
+    if (!algorithmResults) return;
     const routes = algorithmResults[selectedAlgorithm].routes;
     const allVehicleIds = new Set(routes.map(r => r.vehicle.id));
     setVisibleVehicles(allVehicleIds);
@@ -436,6 +639,7 @@ const App = () => {
 
   // Hide all vehicles
   const hideAllVehicles = () => {
+    if (!algorithmResults) return;
     const routes = algorithmResults[selectedAlgorithm].routes;
     const emptySet = new Set();
     setVisibleVehicles(emptySet);
@@ -480,7 +684,7 @@ const App = () => {
               <strong>${route.vehicle.id}</strong><br/>
               ${segment.returnToDepot ? 'Return to depot' : `Segment ${idx + 1}`}<br/>
               Distance: ${segment.distance.toFixed(1)}km<br/>
-              ${segment.fallback ? '✈️ Estimated (OSRM unavailable)' : '🛣️ Real road distance'}
+              ${segment.fallback ? 'âœˆï¸ Estimated (OSRM unavailable)' : 'ðŸ›£ï¸ Real road distance'}
             </div>
           `);
 
@@ -499,7 +703,7 @@ const App = () => {
           })
         }).addTo(mapInstanceRef.current);
 
-        const onTimeStatus = order.onTime ? '✅ On Time' : `⚠️ Late by ${order.lateness} min`;
+        const onTimeStatus = order.onTime ? 'âœ… On Time' : `Late by ${order.lateness} min`;
         
         marker.bindPopup(`
           <div style="font-family: 'Inter', sans-serif;">
@@ -522,6 +726,7 @@ const App = () => {
     setVehicles([]);
     setAlgorithmResults(null);
     setSelectedAlgorithm('distanceFirst');
+    setSelectedSolution(null);
     setVisibleVehicles(new Set());
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
@@ -707,7 +912,7 @@ const App = () => {
             </h3>
             <label htmlFor="orders-upload" style={{
               display: 'block',
-              width: '100%',
+              width: '90%',
               padding: '16px',
               background: uploadingOrders ? 'rgba(255, 59, 74, 0.1)' : 'rgba(255, 59, 74, 0.05)',
               border: `2px dashed ${uploadingOrders ? '#ff3b4a' : 'rgba(255, 59, 74, 0.3)'}`,
@@ -758,7 +963,7 @@ const App = () => {
             </h3>
             <label htmlFor="vehicles-upload" style={{
               display: 'block',
-              width: '100%',
+              width: '90%',
               padding: '16px',
               background: uploadingVehicles ? 'rgba(0, 212, 255, 0.1)' : 'rgba(0, 212, 255, 0.05)',
               border: `2px dashed ${uploadingVehicles ? '#00d4ff' : 'rgba(0, 212, 255, 0.3)'}`,
@@ -795,7 +1000,7 @@ const App = () => {
           </div>
 
           {/* Optimize Button */}
-          <button
+          {/* <button
             onClick={assignOrdersToVehicles}
             disabled={orders.length === 0 || vehicles.length === 0 || optimizing}
             style={{
@@ -821,7 +1026,78 @@ const App = () => {
             }}
           >
             {optimizing ? '⚡ Optimizing...' : '🚀 Compare Algorithms'}
-          </button>
+          </button> */}
+
+          {/* Pre-loaded Solutions Section */}
+          {orders.length > 0 && (
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{
+                margin: '0 0 12px 0',
+                fontSize: '12px',
+                fontWeight: '700',
+                color: '#e0e6ed',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                fontFamily: "'Space Mono', monospace"
+              }}>
+                Load Pre-Calculated Solutions
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '8px'
+              }}>
+                {Object.entries(SOLUTIONS).map(([key, solution]) => {
+                  const Icon = solution.icon;
+                  const isSelected = selectedSolution === key;
+                  
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => loadSolution(key)}
+                      style={{
+                        background: isSelected 
+                          ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(168, 85, 247, 0.15))' 
+                          : 'rgba(255, 255, 255, 0.03)',
+                        border: isSelected 
+                          ? '2px solid rgba(124, 58, 237, 0.5)' 
+                          : '2px solid rgba(255, 255, 255, 0.06)',
+                        borderRadius: '10px',
+                        padding: '12px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: '6px'
+                      }}>
+                        <Icon size={16} color={isSelected ? '#a855f7' : '#8b95a5'} />
+                        <div style={{
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          color: isSelected ? '#e0e6ed' : '#8b95a5',
+                          fontFamily: "'Space Mono', monospace"
+                        }}>
+                          {solution.name}
+                        </div>
+                      </div>
+                      <div style={{
+                        fontSize: '9px',
+                        color: '#6b7684',
+                        lineHeight: '1.3'
+                      }}>
+                        {solution.description}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Algorithm Comparison */}
           {algorithmResults && (
@@ -874,16 +1150,16 @@ const App = () => {
                         fontFamily: "'Space Mono', monospace",
                         marginBottom: '4px'
                       }}>
-                        {key === 'distanceFirst' && 'ðŸ”µ'} 
-                        {key === 'timeFirst' && 'ðŸŸ¢'} 
-                        {' '}{algo.name}
+                        {key === 'distanceFirst' && 'Ã°Å¸â€Âµ'} 
+                        {key === 'timeFirst' && 'Ã°Å¸Å¸Â¢'} 
+                        {' '}{SOLUTIONS[key]?.name || algo.name || key}
                       </div>
                       <div style={{
                         fontSize: '10px',
                         color: '#8b95a5',
                         marginBottom: '8px'
                       }}>
-                        {algo.description}
+                        {SOLUTIONS[key]?.description || algo.description || ''}
                       </div>
                       
                       {/* Distance Type Badge */}
@@ -899,7 +1175,7 @@ const App = () => {
                         color: isRoadDistance ? '#10b981' : '#f59e0b',
                         border: `1px solid ${isRoadDistance ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`
                       }}>
-                        {isRoadDistance ? '🛣️ Real Roads' : '✈️ Estimated (×1.3)'}
+                        {isRoadDistance ? 'Real Roads' : 'Estimated Distances'}
                       </div>
                     </div>
                     
@@ -933,7 +1209,7 @@ const App = () => {
                         e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
-                      {isRecalculating ? 'â³ Calculating...' : isRoadDistance ? 'âœ“ Chosen' : 'Choose'}
+                      {isRecalculating ? '⏳ Calculating...' : isRoadDistance ? 'Real Roads' : 'Get Real Roads'}
                     </button>
                   </div>
 
@@ -961,7 +1237,7 @@ const App = () => {
                         e.currentTarget.style.background = 'transparent';
                       }}
                     >
-                      👁️ View on Map
+                      ðŸ‘ï¸ View on Map
                     </button>
                   )}
 
@@ -1139,7 +1415,7 @@ const App = () => {
                         fontSize: '10px',
                         color: '#8b95a5'
                       }}>
-                        {route.orders.length} stops â€¢ {route.totalDistance}km â€¢ {route.onTimeDeliveries}/{route.orders.length} on time
+                        {route.orders.length} stops, {route.totalDistance}km, {route.onTimeDeliveries}/{route.orders.length} on time
                       </div>
                     </div>
                   </label>
