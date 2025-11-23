@@ -52,29 +52,86 @@ def load_orders(csv_path: Path) -> list[Order]:
     # Clean column names
     df.columns = df.columns.str.strip()
     
+    # All deliveries take 3 minutes
     priority_service_times = {
-        'urgent': 10,
-        'express': 8,
-        'standard': 5,
+        'urgent': 3,
+        'express': 3,
+        'standard': 3,
     }
     
     orders = []
-    for _, row in df.iterrows():
-        priority = str(row.get('Priority', 'standard')).strip().lower()
-        
-        # Handle both column name formats
-        weight_col = 'Weight_kg' if 'Weight_kg' in df.columns else 'Weight(kg)'
-        
-        orders.append(Order(
-            order_id=str(row['OrderID']).strip(),
-            demand_kg=float(str(row[weight_col]).replace(',', '.')),
-            priority=priority,
-            window_start=time_str_to_minutes(row['WindowStart']),
-            window_end=time_str_to_minutes(row['WindowEnd']),
-            service_minutes=priority_service_times.get(priority, 5),
-        ))
+    invalid_orders = []
+    
+    for idx, row in df.iterrows():
+        try:
+            priority = str(row.get('Priority', 'standard')).strip().lower()
+            
+            # Handle both column name formats
+            weight_col = 'Weight_kg' if 'Weight_kg' in df.columns else 'Weight(kg)'
+            
+            order_id = str(row['OrderID']).strip()
+            window_start = time_str_to_minutes(row['WindowStart'])
+            window_end = time_str_to_minutes(row['WindowEnd'])
+            
+            # Validate time window
+            if window_start >= window_end:
+                invalid_orders.append(f"{order_id}: start ({window_start}) >= end ({window_end})")
+                continue
+            
+            if window_start < 0 or window_end < 0:
+                invalid_orders.append(f"{order_id}: negative time values")
+                continue
+            
+            if window_end > 1440:  # 24 hours
+                invalid_orders.append(f"{order_id}: window_end > 24 hours ({window_end})")
+                continue
+            
+            orders.append(Order(
+                order_id=order_id,
+                demand_kg=float(str(row[weight_col]).replace(',', '.')),
+                priority=priority,
+                window_start=window_start,
+                window_end=window_end,
+                service_minutes=priority_service_times.get(priority, 5),
+            ))
+        except Exception as e:
+            invalid_orders.append(f"{row.get('OrderID', f'row {idx}')}: {str(e)}")
+    
+    if invalid_orders:
+        print(f"\n⚠️  Skipped {len(invalid_orders)} invalid orders:")
+        for err in invalid_orders[:10]:
+            print(f"    - {err}")
+        if len(invalid_orders) > 10:
+            print(f"    ... and {len(invalid_orders) - 10} more")
+        print()
     
     return orders
+
+
+def get_hardcoded_fleet() -> list[Vehicle]:
+    """Return hardcoded fleet of 20 vehicles."""
+    return [
+        Vehicle('V001', 'truck', 7156.0, 'diesel', 300.0),
+        Vehicle('V002', 'truck', 7319.0, 'diesel', 300.0),
+        Vehicle('V003', 'truck', 4674.0, 'diesel', 300.0),
+        Vehicle('V004', 'bike', 33.0, 'electric', 0.0),
+        Vehicle('V005', 'van', 1102.0, 'electric', 0.0),
+        Vehicle('V006', 'truck', 5317.0, 'diesel', 300.0),
+        Vehicle('V007', 'bike', 32.0, 'electric', 0.0),
+        Vehicle('V008', 'bike', 45.0, 'electric', 0.0),
+        Vehicle('V009', 'bike', 49.0, 'electric', 0.0),
+        Vehicle('V010', 'van', 816.0, 'diesel', 180.0),
+        Vehicle('V011', 'truck', 6619.0, 'diesel', 300.0),
+        Vehicle('V012', 'truck', 6830.0, 'diesel', 300.0),
+        Vehicle('V013', 'bike', 48.0, 'electric', 0.0),
+        Vehicle('V014', 'truck', 6393.0, 'diesel', 300.0),
+        Vehicle('V015', 'bike', 36.0, 'electric', 0.0),
+        Vehicle('V016', 'bike', 32.0, 'electric', 0.0),
+        Vehicle('V017', 'van', 815.0, 'electric', 0.0),
+        Vehicle('V018', 'bike', 32.0, 'electric', 0.0),
+        Vehicle('V019', 'bike', 41.0, 'electric', 0.0),
+        Vehicle('V020', 'bike', 34.0, 'electric', 0.0),
+    ]
 
 
 def load_fleet(csv_path: Path) -> list[Vehicle]:
@@ -128,14 +185,15 @@ def solve_vrptw(
     transit_callback_index = routing.RegisterTransitCallback(time_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
     
-    # Time dimension
-    max_time_per_vehicle = depot_window[1] - depot_window[0]  # Use depot window by default
+    # Time dimension - use horizon large enough for full day
+    # Since we use absolute times (not relative to depot start), set horizon to end of day
+    horizon = 1440  # 24 hours in minutes
     
     routing.AddDimension(
         transit_callback_index,
         slack_max=240,  # Allow up to 4 hours waiting
-        capacity=max_time_per_vehicle,
-        fix_start_cumul_to_zero=False,
+        capacity=horizon,  # Use full day horizon
+        fix_start_cumul_to_zero=False,  # Use absolute times
         name='Time',
     )
     time_dimension = routing.GetDimensionOrDie('Time')
@@ -156,6 +214,7 @@ def solve_vrptw(
         name='Capacity',
     )
     
+    
     # Set time windows
     for vehicle_idx in range(len(vehicles)):
         time_dimension.CumulVar(routing.Start(vehicle_idx)).SetRange(*depot_window)
@@ -163,9 +222,24 @@ def solve_vrptw(
     
     for idx, order in enumerate(orders, start=1):
         index = manager.NodeToIndex(idx)
-        time_dimension.CumulVar(index).SetRange(order.window_start, order.window_end)
+        # Ensure order time windows are within depot hours
+        order_start = max(order.window_start, depot_window[0])
+        order_end = min(order.window_end, depot_window[1])
+        
+        if order_start >= order_end:
+            print(f"⚠️  Warning: Order {order.order_id} has impossible time window after depot constraint")
+            # Set a default window in the middle of the day
+            order_start = depot_window[0] + 60  # 1 hour after opening
+            order_end = depot_window[1] - 60     # 1 hour before closing
+        
+        try:
+            time_dimension.CumulVar(index).SetRange(order_start, order_end)
+        except Exception as e:
+            print(f"❌ Error setting time window for {order.order_id}: {e}")
+            print(f"   Window: {order_start} - {order_end}, Depot: {depot_window}")
+            raise
     
-    # Minimize vehicle usage and total time
+    # Minimize total time and distance
     for vehicle_idx in range(len(vehicles)):
         routing.AddVariableMinimizedByFinalizer(
             time_dimension.CumulVar(routing.Start(vehicle_idx))
@@ -176,19 +250,9 @@ def solve_vrptw(
     
     # Search parameters
     # Allow dropping visits with penalties (makes problem feasible)
-    penalty = 1000000  # High penalty for unassigned orders
+    penalty = 10000000  # Very high penalty for unassigned orders
     for node in range(1, len(orders) + 1):
         routing.AddDisjunction([manager.NodeToIndex(node)], penalty)
-    
-    # Optionally enforce minimum vehicle usage
-    # Uncomment to require using more vehicles:
-    # routing.AddConstantDimensionWithSlack(
-    #     0,  # transit value
-    #     0,  # slack max
-    #     1,  # capacity per vehicle (dummy)
-    #     True,  # fix start cumul to zero
-    #     "VehicleUsage"
-    # )
     
     search_params = pywrapcp.DefaultRoutingSearchParameters()
     search_params.first_solution_strategy = (
@@ -283,13 +347,29 @@ def print_solution(
     
     print(f"Summary:")
     print(f"  Vehicles used: {vehicles_used}/{len(vehicles)}")
+    print(f"  Vehicles available but unused: {len(vehicles) - vehicles_used}")
     print(f"  Orders delivered: {len(orders) - len(unassigned)}/{len(orders)}")
     print(f"  Total distance: {total_distance:.2f} km")
+    
+    if len(unassigned) > 0 and vehicles_used < len(vehicles):
+        print(f"\n💡 Tip: {len(unassigned)} order(s) unassigned with {len(vehicles) - vehicles_used} unused vehicles.")
+        print(f"   Possible reasons:")
+        print(f"   - Time window too tight (can't reach in time)")
+        print(f"   - Location too far from all routes")
+        print(f"   - Solver gave up (try longer --time-limit)")
     
     if unassigned:
         print(f"\n⚠️  Unassigned orders ({len(unassigned)}):")
         for order_id in unassigned[:20]:
-            print(f"    - {order_id}")
+            # Find the order details
+            order = next((o for o in orders if o.order_id == order_id), None)
+            if order:
+                print(f"    - {order_id}:")
+                print(f"        Weight: {order.demand_kg:.2f} kg")
+                print(f"        Time window: {minutes_to_hhmm(order.window_start)} - {minutes_to_hhmm(order.window_end)}")
+                print(f"        Priority: {order.priority}")
+            else:
+                print(f"    - {order_id}")
         if len(unassigned) > 20:
             print(f"    ... and {len(unassigned) - 20} more")
 
@@ -305,8 +385,14 @@ def main():
     parser.add_argument(
         '--vehicles-csv',
         type=Path,
-        default=Path('delivery_vehicles.csv'),
-        help='Path to vehicles CSV',
+        default=None,
+        help='Path to vehicles CSV (optional, uses hardcoded fleet if not provided)',
+    )
+    parser.add_argument(
+        '--num-vehicles',
+        type=int,
+        default=20,
+        help='Number of vehicles to use from the fleet (default: 20, use all)',
     )
     parser.add_argument(
         '--matrix-dir',
@@ -323,7 +409,7 @@ def main():
     parser.add_argument(
         '--depot-end',
         type=str,
-        default='22:00',
+        default='22:30',
         help='Depot closing time (HH:MM)',
     )
     parser.add_argument(
@@ -352,8 +438,19 @@ def main():
     print(f"  Loaded {len(orders)} orders\n")
     
     print("Loading fleet...")
-    vehicles = load_fleet(args.vehicles_csv)
-    print(f"  Loaded {len(vehicles)} vehicles\n")
+    if args.vehicles_csv:
+        vehicles = load_fleet(args.vehicles_csv)
+        print(f"  Loaded {len(vehicles)} vehicles from CSV")
+    else:
+        vehicles = get_hardcoded_fleet()
+        print(f"  Using hardcoded fleet: {len(vehicles)} vehicles")
+    
+    # Limit to specified number of vehicles
+    if args.num_vehicles and args.num_vehicles < len(vehicles):
+        vehicles = vehicles[:args.num_vehicles]
+        print(f"  Limited to {len(vehicles)} vehicles\n")
+    else:
+        print(f"  Using all {len(vehicles)} vehicles\n")
     
     print("Loading matrices...")
     distance_matrix = np.loadtxt(args.matrix_dir / 'distance_matrix.csv', delimiter=',')
