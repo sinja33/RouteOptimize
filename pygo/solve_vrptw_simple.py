@@ -13,7 +13,7 @@ import pandas as pd
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 
-def create_data_model(orders_csv: Path, matrix_dir: Path, num_vehicles: int = 20, vehicle_types: str = None):
+def create_data_model(orders_csv: Path, matrix_dir: Path, num_vehicles: int = 20, vehicle_types: str = None, vehicle_ids: str = None):
     """
     Create data model for the problem.
     
@@ -22,6 +22,7 @@ def create_data_model(orders_csv: Path, matrix_dir: Path, num_vehicles: int = 20
         matrix_dir: Path to matrix directory
         num_vehicles: Number of vehicles to use (1-20)
         vehicle_types: Filter by type: 'truck', 'van', 'bike', or 'all' (default)
+        vehicle_ids: Specific vehicle IDs to use (e.g. "1,2,3,6,11")
     
     Returns dict with:
         - time_matrix: Travel times in minutes (NxN)
@@ -80,14 +81,26 @@ def create_data_model(orders_csv: Path, matrix_dir: Path, num_vehicles: int = 20
         ('V020', 'bike', 34, 'electric', 0),
     ]
     
-    # Filter by vehicle type if specified
-    if vehicle_types and vehicle_types != 'all':
+    # Filter by specific vehicle IDs if specified
+    if vehicle_ids:
+        # Parse vehicle IDs (e.g., "1,2,3,6" -> ["V001", "V002", "V003", "V006"])
+        selected_ids = []
+        for vid_num in vehicle_ids.split(','):
+            vid_num = vid_num.strip()
+            selected_ids.append(f'V{int(vid_num):03d}')
+        
+        fleet = [(vid, vtype, cap, fuel, emission) for vid, vtype, cap, fuel, emission in fleet if vid in selected_ids]
+        print(f"  Selected {len(fleet)} specific vehicles: {', '.join(selected_ids)}")
+    
+    # Otherwise filter by vehicle type
+    elif vehicle_types and vehicle_types != 'all':
         types_to_use = [t.strip() for t in vehicle_types.split(',')]
         fleet = [(vid, vtype, cap, fuel, emission) for vid, vtype, cap, fuel, emission in fleet if vtype in types_to_use]
         print(f"  Filtered to {len(fleet)} vehicles of type(s): {types_to_use}")
     
-    # Limit to num_vehicles
-    fleet = fleet[:num_vehicles]
+    # Otherwise limit to num_vehicles
+    else:
+        fleet = fleet[:num_vehicles]
     
     vehicle_ids = [vid for vid, _, _, _, _ in fleet]
     vehicle_capacities = [int(cap * 1000) for _, _, cap, _, _ in fleet]  # Convert to grams
@@ -152,9 +165,14 @@ def print_solution(data, manager, routing, solution):
             capacity_var = capacity_dimension.CumulVar(index)
             node = manager.IndexToNode(index)
             
+            arrival_time = solution.Min(time_var)
+            # Add service time to show departure time (depot has no service time)
+            service_time = 0 if node == 0 else data['service_time']
+            departure_time = arrival_time + service_time
+            
             plan_output += (
                 f"  {node}"
-                f" Time({format_time(solution.Min(time_var))},{format_time(solution.Max(time_var))})"
+                f" Time({format_time(arrival_time)},{format_time(departure_time)})"
                 f" Load({solution.Value(capacity_var)/1000:.1f}kg)"
                 f" -> "
             )
@@ -167,11 +185,12 @@ def print_solution(data, manager, routing, solution):
             to_node = manager.IndexToNode(index)
             route_distance += data['distance_matrix'][from_node][to_node]
         
-        # Final node (depot)
+        # Final node (depot - no service time)
         time_var = time_dimension.CumulVar(index)
         node = manager.IndexToNode(index)
+        arrival_time = solution.Min(time_var)
         plan_output += (
-            f"{node} Time({format_time(solution.Min(time_var))},{format_time(solution.Max(time_var))})\n"
+            f"{node} Time({format_time(arrival_time)},{format_time(arrival_time)})\n"
         )
         
         route_time = solution.Min(time_var)
@@ -437,6 +456,12 @@ def main():
         help='Vehicle types to use: "truck", "van", "bike", "truck,van", or "all" (default)'
     )
     parser.add_argument(
+        '--vehicle-ids',
+        type=str,
+        default=None,
+        help='Specific vehicle IDs to use (e.g. "1,2,3,6,11,12,14"). Overrides --num-vehicles and --vehicle-types'
+    )
+    parser.add_argument(
         '--output-json',
         type=Path,
         default=Path('solution_simple.json'),
@@ -465,7 +490,7 @@ def main():
     
     # Create data model
     print("Loading data...")
-    data = create_data_model(args.orders_csv, args.matrix_dir, args.num_vehicles, args.vehicle_types)
+    data = create_data_model(args.orders_csv, args.matrix_dir, args.num_vehicles, args.vehicle_types, args.vehicle_ids)
     print(f"  Orders: {len(data['demands'])-1}")
     print(f"  Vehicles: {data['num_vehicles']}")
     print(f"  Vehicle IDs: {', '.join(data['vehicle_ids'])}")
